@@ -147,7 +147,7 @@ class Post extends JPanel {
         comment_count_label.setFont(new Font("Arial", Font.BOLD, 18));
         comment_count_label.setForeground(Color.white);
 
-        comment_btn.addActionListener(e -> nav.openComments(comments, id, nName));
+        comment_btn.addActionListener(e -> nav.openComments(comments, id, nName, post.get("post_id").toString()));
         
         bottom_btn_panel.add(comment_btn);
         bottom_btn_panel.add(comment_count_label);

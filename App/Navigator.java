@@ -12,7 +12,7 @@ public interface Navigator {
     void openTotMessage(String id, String Nname);
     void openFriend(String id, String nName);
     void openUserMessage(String sender, String receiver,String se_nName, String re_nName);
-    void openComments(List<Map<String, String>> comments, String id, String nName);
+    void openComments(List<Map<String, String>> comments, String id, String nName, String post_id);
 }
 
 class App implements Navigator{
@@ -60,7 +60,7 @@ class App implements Navigator{
     }
 
     @Override
-    public void openComments(List<Map<String, String>> comments, String id, String nName){
-        show(new CommentsView(this, comments, id, nName));
+    public void openComments(List<Map<String, String>> comments, String id, String nName, String post_id){
+        show(new CommentsView(this, comments, id, nName, post_id));
     }
 }
