@@ -1,0 +1,10 @@
+javac -encoding UTF-8 -cp "lib/*" -d out Server/InfoServerHost.java Server/ChatServerHost.java App/Server.java Json/Json.java
+
+jar cfm myserver.jar manifest.txt -C out .
+
+docker build -t htaeky/serverhost:1.2 .   
+docker rm -f serverhost || true
+docker run -d --name serverhost -p 8000:8000 -p 8001:8001 htaeky/serverhost:1.2
+docker logs -f serverhost
+
+docker push htaeky/serverhost:1.2

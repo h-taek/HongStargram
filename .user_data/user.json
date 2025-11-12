@@ -1,0 +1,72 @@
+{
+  "C193228": {
+    "id": "C193228",
+    "pw": "1234",
+    "nName": "Lim",
+    "friend": [
+      "1234"
+    ],
+    "friend_add": [],
+    "friend_request": [],
+    "post": [],
+    "readable_post": [
+      "1", 
+      "2",
+      "3"
+    ]
+  },
+  "1234": {
+    "id": "1234",
+    "pw": "1234",
+    "nName": "테스트1",
+    "friend": [
+      "12345",
+      "C193228",
+      "123456"
+    ],
+    "friend_add": [],
+    "friend_request": [],
+    "post": [
+      "1", 
+      "2",
+      "3"
+    ],
+    "readable_post": [
+      "1", 
+      "2",
+      "3"
+    ]
+  },
+  "12345": {
+    "id": "12345",
+    "pw": "1234",
+    "nName": "테스트2",
+    "friend": [
+      "1234"
+    ],
+    "friend_add": [],
+    "friend_request": [],
+    "post": [],
+    "readable_post": [
+      "1", 
+      "2",
+      "3"
+    ]
+  },
+  "123456": {
+    "id": "123456",
+    "pw": "1234",
+    "nName": "테스트3",
+    "friend": [
+      "1234"
+    ],
+    "friend_add": [],
+    "friend_request": [],
+    "post": [],
+    "readable_post": [
+      "1", 
+      "2",
+      "3"
+    ]
+  }
+}
