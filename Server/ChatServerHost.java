@@ -26,8 +26,8 @@ public class ChatServerHost {
                 String msg, Json chat_sender, Json chat_receiver) {
         PrintWriter target = CLIENTS.get(receiver);
         try {
-            chat_sender.chatWrite(sender, receiver, msg);
-            chat_receiver.chatWrite(sender, sender, msg);
+            chat_sender.addChat(sender, receiver, msg);
+            chat_receiver.addChat(sender, sender, msg);
             
             if (target != null) {
                 target.println(msg);
@@ -70,7 +70,7 @@ public class ChatServerHost {
                 chat_receiver = new Json(".user_data/chat/chat_" + receiver + ".json");
 
                 // 접속하면 서버의 기록을 전송
-                String chat_log = chat_sender.chatRead(receiver);
+                String chat_log = chat_sender.getChat(receiver);
                 out.println(chat_log);
                 
 

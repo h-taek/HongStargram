@@ -63,6 +63,86 @@ class GetPostHandler implements HttpHandler {
     }
 }
 
+class AddCommentHandler implements HttpHandler {
+    @Override
+    public void handle(HttpExchange exchange){
+        try{
+            InputStream in = exchange.getRequestBody();
+            String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+
+            Gson gson = new Gson();
+            Map<String, String> data = gson.fromJson(body, Map.class);
+
+            String post_id = data.get("post_id");
+            String id = data.get("id");
+            String text = data.get("text");
+            Json store = new Json(".user_data/post.json");
+
+            store.addComment(post_id, id, text);;
+            exchange.sendResponseHeaders(1, -1);
+        } catch (Exception e) {
+            System.out.println("PostServerHost.AddCommentHandler Err!");
+            e.printStackTrace();
+        }
+        
+        exchange.close();
+        return;
+    }
+}
+
+class DeleteCommentHandler implements HttpHandler {
+    @Override
+    public void handle(HttpExchange exchange) {
+        try{
+            InputStream in = exchange.getRequestBody();
+            String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+
+            Gson gson = new Gson();
+            Map<String, String> data = gson.fromJson(body, Map.class);
+
+            String post_id = data.get("post_id");
+            String comment_id = data.get("comment_id");
+            Json store = new Json(".user_data/post.json");
+
+            store.deleteComment(post_id, comment_id);
+            exchange.sendResponseHeaders(1, -1);
+        } catch (Exception e) {
+            System.out.println("PostServerHost.AddCommentHandler Err!");
+            e.printStackTrace();
+        }
+        
+        exchange.close();
+        return;
+    }
+}
+
+class LikeHandler implements HttpHandler {
+    @Override
+    public void handle(HttpExchange exchange) {
+        try{
+            InputStream in = exchange.getRequestBody();
+            String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+
+            Gson gson = new Gson();
+            Map<String, String> data = gson.fromJson(body, Map.class);
+
+            String post_id = data.get("post_id");
+            String id = data.get("id");
+            boolean flag = data.get("flag").equals("true") ? true : false;
+            Json store = new Json(".user_data/post.json");
+
+            store.like(post_id, id, flag);
+            exchange.sendResponseHeaders(1, -1);
+        } catch (Exception e) {
+            System.out.println("PostServerHost.AddCommentHandler Err!");
+            e.printStackTrace();
+        }
+        
+        exchange.close();
+        return;
+    }
+}
+
 public class PostServerHost {
     private static final int port = 8002;
 
@@ -87,6 +167,9 @@ public class PostServerHost {
         });
         server.createContext("/GetReadablePost", new GetReadablePostHandler());
         server.createContext("/GetPost", new GetPostHandler());
+        server.createContext("/AddComment", new AddCommentHandler());
+        server.createContext("/DeleteComment", new DeleteCommentHandler());
+        server.createContext("/Like", new LikeHandler());
         
 
         server.setExecutor(null);

@@ -84,6 +84,87 @@ public class PostServerClient {
         }   
     }
 
+    public void AddCommentRequest(String post_id, String id, String text) {
+        try{
+            String urlStr = "http://" + hostIp + ":" + port + "/AddComment";
+            URI uri = URI.create(urlStr);
+            URL url = uri.toURL();
+            
+            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+            connect.setRequestMethod("POST");
+            connect.setDoOutput(true);
+            connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+            String json = "{\"post_id\":\"" + post_id + "\", \"id\":\""+ id + "\", \"text\":\"" + text + "\"}";
+            try (OutputStream os = connect.getOutputStream()) {
+                os.write(json.getBytes(StandardCharsets.UTF_8));
+            }
+
+            connect.getResponseCode();
+            connect.disconnect();
+            return;    
+        }
+        catch (Exception e) {
+            System.out.println("PostServerClient.AddCommentRequest Err!");
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    public void DeleteCommentRequest(String post_id, String comment_id) {
+        try{
+            String urlStr = "http://" + hostIp + ":" + port + "/DeleteComment";
+            URI uri = URI.create(urlStr);
+            URL url = uri.toURL();
+            
+            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+            connect.setRequestMethod("POST");
+            connect.setDoOutput(true);
+            connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+            String json = "{\"post_id\":\"" + post_id + "\", \"comment_id\":\"" + comment_id + "\"}";
+            try (OutputStream os = connect.getOutputStream()) {
+                os.write(json.getBytes(StandardCharsets.UTF_8));
+            }
+
+            connect.getResponseCode();
+            connect.disconnect();
+            return;    
+        }
+        catch (Exception e) {
+            System.out.println("PostServerClient.DeleteCommentRequest Err!");
+            e.printStackTrace();
+            return;
+        }
+    }    
+
+    public void LikeRequest(String post_id, String id, String flag) {
+        try{
+            String urlStr = "http://" + hostIp + ":" + port + "/Like";
+            URI uri = URI.create(urlStr);
+            URL url = uri.toURL();
+            
+            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+            connect.setRequestMethod("POST");
+            connect.setDoOutput(true);
+            connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+            String json = "{\"post_id\":\"" + post_id + "\", \"id\":\""+ id + "\", \"flag\":\"" + flag + "\"}";
+            try (OutputStream os = connect.getOutputStream()) {
+                os.write(json.getBytes(StandardCharsets.UTF_8));
+            }
+
+            connect.getResponseCode();
+            connect.disconnect();
+            return;    
+        }
+        catch (Exception e) {
+            System.out.println("PostServerClient.LikeRequest Err!");
+            e.printStackTrace();
+            return;
+        }
+    }
+
     public PostServerClient() {
         try {    
             String urlStr = "http://" + hostIp + ":" + port + "/test";

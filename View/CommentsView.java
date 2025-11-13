@@ -30,7 +30,6 @@ class Label extends JLabel {
         Insets in = getInsets();
 
         int h = in.top + in.bottom + line_height;
-        System.out.println(h);
 
         // 폭은 레이아웃에 맡기고, 최소/최대는 상황에 따라 조절
         return new Dimension(availW, h);
@@ -61,7 +60,6 @@ class TextArea extends JTextArea {
         Insets in = getInsets();
 
         int h = in.top + in.bottom + (line_height * lines);
-        System.out.println(h);
 
         // 폭은 레이아웃에 맡기고, 최소/최대는 상황에 따라 조절
         return new Dimension(availW, h);
@@ -69,7 +67,7 @@ class TextArea extends JTextArea {
 }
 
 class Comment extends JPanel {
-    Comment (Map<String, String> comment, String id, PostServerClient server) {
+    Comment (Map<String, String> comment, PostServerClient server, CommentCenterPanel center) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(
             BorderFactory.createCompoundBorder(
@@ -79,14 +77,15 @@ class Comment extends JPanel {
         );
         setBackground(Color.decode("#141414"));
 
-        String comment_id = comment.get("id");
+        String user_id = comment.get("id");
         String msg = comment.get("comment");
-        
+        String comment_id = comment.get("comment_id");
+
         JPanel top_panel = new JPanel();
         top_panel.setLayout(new BoxLayout(top_panel, BoxLayout.X_AXIS));
         top_panel.setBackground(Color.decode("#141414"));
 
-        Label id_label = new Label("@ " + comment_id); 
+        Label id_label = new Label("@ " + user_id); 
         id_label.setForeground(Color.white);
         id_label.setFont(new Font("Arial", Font.BOLD, 16));
         id_label.setBorder(BorderFactory.createEmptyBorder(0,10,5,0));
@@ -94,7 +93,7 @@ class Comment extends JPanel {
         top_panel.add(id_label);
         top_panel.add(Box.createHorizontalGlue());
 
-        if (id.equals(comment_id)) {
+        if (center.id.equals(user_id)) {
             ImageIcon icon = new ImageIcon(Resize.resizeImage(".src/trashbin_icon.png", 22, 22, 0.5f));
             JButton btn = new JButton(icon);
             btn.setBorder(BorderFactory.createEmptyBorder(0,0,0,10));
@@ -103,7 +102,12 @@ class Comment extends JPanel {
             btn.setBorderPainted(false);
             btn.setFocusPainted(false);
             btn.addActionListener(e -> {
-                // 메세지 삭제 구현
+                server.DeleteCommentRequest(center.post_id, comment_id);
+
+                Map<String, Object> post = server.GetPostRequest(center.post_id);
+                List<Map<String, String>> comments = (List<Map<String, String>>) post.get("comments");
+
+                center.refresh(comments);
             });
 
             top_panel.add(btn);
@@ -127,14 +131,16 @@ class Comment extends JPanel {
 }
 
 class CommentCenterPanel extends JPanel {
-    String id;
+    String id; String post_id;
     PostServerClient server;
 
     JPanel listPanel = new JPanel();
     JScrollPane scrollPane;
 
-    CommentCenterPanel(List<Map<String, String>> comments, String id, PostServerClient server) {
+    CommentCenterPanel(List<Map<String, String>> comments, String id, String post_id, PostServerClient server) {
         this.id = id;
+        this.post_id = post_id;
+        this.server = server;
 
         setLayout(new BorderLayout());
         setBackground(Color.decode("#141414"));
@@ -153,7 +159,7 @@ class CommentCenterPanel extends JPanel {
         listPanel.removeAll();
         if (comments != null){
             for (Map<String, String> comment : comments) {
-                Comment p = new Comment(comment, id, server);
+                Comment p = new Comment(comment, server, this);
                 listPanel.add(p);
             }
         }
@@ -193,34 +199,46 @@ class CommentTopPanel extends JPanel {
 }
 
 class CommentBottomPanel extends JPanel{
+    RoundTextField field;
+    PostServerClient server;
+    CommentCenterPanel center;
+    String post_id;
+
     CommentBottomPanel (CommentCenterPanel center, PostServerClient server, String post_id){
+        this.server = server;
+        this.center = center;
+        this.post_id = post_id;
+
         setLayout(new BorderLayout(6,0));
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         setBackground(Color.decode("#141414"));
 
-        RoundTextField field = new RoundTextField(15);
+        field = new RoundTextField(15);
         field.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         field.setBackground(Color.DARK_GRAY);
         field.setForeground(Color.WHITE);
         field.setCaretColor(Color.WHITE);
+        field.addActionListener(e -> {listner();});
         add(field, BorderLayout.CENTER);
 
         RoundButton btn = new RoundButton("확인", 15);
         btn.setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
         btn.setBackground(Color.DARK_GRAY);
         btn.setForeground(Color.WHITE);
-        btn.addActionListener(e -> {
-            String text = field.getText();
+        btn.addActionListener(e -> {listner();});
+        add(btn, BorderLayout.EAST);
+    }
+
+    void listner() {
+        String text = field.getText();
             if (text != null) {
-                // 댓글 서버 작성 구현
+                server.AddCommentRequest(center.post_id, center.id, text);
                 field.setText("");
             }
 
-            Map<String, Object> post = server.GetPostRequest(post_id);
-            List<Map<String, String>> comments = (List<Map<String, String>>) post.get("comments");
-            center.refresh(comments);
-        });
-        add(btn, BorderLayout.EAST);
+        Map<String, Object> post = server.GetPostRequest(post_id);
+        List<Map<String, String>> comments = (List<Map<String, String>>) post.get("comments");
+        center.refresh(comments);
     }
 }
 
@@ -234,7 +252,7 @@ public class CommentsView extends JFrame{
         setBackground(Color.decode("#141414"));
         setLayout(new BorderLayout());
     
-        CommentCenterPanel commentCenterPanel = new CommentCenterPanel(comments, id, server);
+        CommentCenterPanel commentCenterPanel = new CommentCenterPanel(comments, id, post_id, server);
         CommentTopPanel commentTopPanel = new CommentTopPanel(nav, id, nName);
         CommentBottomPanel commentBottomPanel = new CommentBottomPanel(commentCenterPanel, server, post_id);
 

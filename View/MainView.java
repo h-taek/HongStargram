@@ -2,6 +2,8 @@ package View;
 
 import javax.swing.*;
 
+import com.google.gson.JsonObject;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -65,7 +67,7 @@ class Post extends JPanel {
         }
     }
 
-    Post(Navigator nav, Map<String, Object> post, String id, String nName) {
+    Post(Navigator nav, Map<String, Object> post, String id, String nName, PostServerClient server) {
         this.post = post;
         this.id = id;
 
@@ -132,6 +134,26 @@ class Post extends JPanel {
         JLabel like_count_label = new JLabel(likes.size() + "   ");
         like_count_label.setFont(new Font("Arial", Font.BOLD, 18));
         like_count_label.setForeground(Color.white);
+
+        String post_id = post.get("post_id").toString();
+        like_btn.addActionListener(e -> {
+            if (likes.contains(id)) {
+                likes.remove(id);
+                ImageIcon icon = new ImageIcon(Resize.resizeImage(".src/heart_line_icon.png", 25, 25, 1));
+                like_btn.setIcon(icon);
+
+                like_count_label.setText((likes.size()) + "   ");
+                server.LikeRequest(post_id, id, "false");
+            }
+            else {
+                likes.add(id);
+                ImageIcon icon = new ImageIcon(Resize.resizeImage(".src/heart_icon.png", 25, 25, 1));
+                like_btn.setIcon(icon);
+
+                like_count_label.setText((likes.size()) + "   ");
+                server.LikeRequest(post_id, id, "true");
+            }
+        });
         
         bottom_btn_panel.add(like_btn);
         bottom_btn_panel.add(like_count_label);
@@ -305,7 +327,7 @@ class MainCenterPanel extends JPanel {
         if (readable_post != null){
             for (String post_id : readable_post) {
                 Map<String, Object> post = server.GetPostRequest(post_id);
-                Post p = new Post(nav, post, id, nName);
+                Post p = new Post(nav, post, id, nName, server);
 
                 listPanel.add(p);
             }

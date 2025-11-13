@@ -74,7 +74,7 @@ public class Json {
         return nName;
     }
 
-    public synchronized void chatWrite(String sender, String receiver, String msg) throws IOException{
+    public synchronized void addChat(String sender, String receiver, String msg) throws IOException{
         JsonObject root = loadOrCreate();
 
         JsonObject chat = new JsonObject();
@@ -92,14 +92,14 @@ public class Json {
         save(root);
     }
 
-    public synchronized String chatList(String id) throws IOException{
+    public synchronized String getChatList(String id) throws IOException{
         JsonObject root = loadOrCreate();
         Set<String> temp = root.keySet();
         String keys = gson.toJson(temp);
         return keys;
     }
 
-    public synchronized String chatRead(String receiver) throws IOException{        
+    public synchronized String getChat(String receiver) throws IOException{        
         JsonObject root = loadOrCreate();
 
         JsonArray temp = root.getAsJsonArray(receiver);
@@ -289,5 +289,54 @@ public class Json {
         return gson.toJson(post).replace("\n", "").replace("\r", "");
     }
 
+    public synchronized void addComment(String post_id, String id, String text) throws IOException {
+        JsonObject root = loadOrCreate();
+        JsonObject post = root.getAsJsonObject(post_id);
 
+        int comment_id = Integer.valueOf(root.get("comment_id").getAsString()) + 1;
+        JsonArray comments = post.getAsJsonArray("comments");
+
+        JsonObject comment = new JsonObject();
+        comment.addProperty("id", id);
+        comment.addProperty("comment", text);
+        comment.addProperty("comment_id", comment_id+"");
+
+        comments.add(comment);
+        root.addProperty("comment_id", comment_id+"");
+
+        save(root);
+    }
+
+    public synchronized void deleteComment(String post_id, String comment_id) throws IOException {
+        JsonObject root = loadOrCreate();
+        JsonObject post = root.getAsJsonObject(post_id);
+        JsonArray comments = post.getAsJsonArray("comments");
+
+        for (int i = 0; i < comments.size(); i++){
+            JsonObject comment = comments.get(i).getAsJsonObject();
+            if (comment.get("comment_id").getAsString().equals(comment_id)){
+                comments.remove(i);
+                break;
+            }
+        }
+
+        save(root);
+    }
+
+    public synchronized void like(String post_id, String id, boolean flag) throws IOException {
+        JsonObject root = loadOrCreate();
+        JsonObject post = root.getAsJsonObject(post_id);
+        JsonArray likes = post.getAsJsonArray("likes");
+
+        if (flag) {likes.add(id);}
+        else {
+            for (int i = 0; i < likes.size(); i++){
+                if (likes.get(i).getAsString().equals(id)) {
+                    likes.remove(i);
+                }
+            }
+        }
+
+        save(root);
+    }
 }
