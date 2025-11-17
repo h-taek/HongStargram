@@ -4,6 +4,8 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -160,6 +162,63 @@ public class PostServerClient {
         }
         catch (Exception e) {
             System.out.println("PostServerClient.LikeRequest Err!");
+            e.printStackTrace();
+            return;
+        }
+    }
+
+    public void AddPostRequest(String user_id, String content, String img) {
+        try{
+            String urlStr = "http://" + hostIp + ":" + port + "/AddPost";
+            URI uri = URI.create(urlStr);
+            URL url = uri.toURL();
+            
+            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+            connect.setRequestMethod("POST");
+            connect.setDoOutput(true);
+            connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+
+            String timestamp = LocalDateTime.now().format(
+                DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
+            );
+
+            String json = "{\"user_id\":\"" + user_id + "\", \"content\":\"" + content + "\", \"timestamp\":\"" + timestamp + "\", \"image\":\"" + img + "\"}";
+            try (OutputStream os = connect.getOutputStream()) {
+                os.write(json.getBytes(StandardCharsets.UTF_8));
+            }
+
+            connect.getResponseCode();
+            connect.disconnect();
+            return;    
+        }
+        catch (Exception e) {
+            System.out.println("PostServerClient.AddPostRequest Err!");
+            e.printStackTrace();
+            return;
+        }
+    }
+
+        public void DeletePostRequest(String post_id) {
+        try{
+            String urlStr = "http://" + hostIp + ":" + port + "/DeletePost";
+            URI uri = URI.create(urlStr);
+            URL url = uri.toURL();
+            
+            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+            connect.setRequestMethod("POST");
+            connect.setDoOutput(true);
+            connect.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
+
+            try (OutputStream os = connect.getOutputStream()) {
+                os.write(post_id.getBytes(StandardCharsets.UTF_8));
+            }        
+
+            connect.getResponseCode();
+            connect.disconnect();
+            return;    
+        }
+        catch (Exception e) {
+            System.out.println("PostServerClient.DeletePostRequest Err!");
             e.printStackTrace();
             return;
         }

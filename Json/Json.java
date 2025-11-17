@@ -339,4 +339,86 @@ public class Json {
 
         save(root);
     }
+
+    public synchronized void addPost(String post_str) throws IOException {
+        JsonObject root = loadOrCreate();
+        Map<String, Object> post = gson.fromJson(post_str, new TypeToken<Map<String, Object>>(){}.getType());
+
+        String user_id = post.get("user_id").toString();
+        String content = post.get("content").toString();
+        String timestamp = post.get("timestamp").toString();
+        String img = post.get("image").toString();
+        byte[] bytes = Base64.getDecoder().decode(img);
+
+        int post_id = Integer.valueOf(root.get("post_id").getAsString()) + 1;
+        String image_path = ".user_data/image/img_" + post_id + ".jpeg";
+
+        try (FileOutputStream fos = new FileOutputStream(image_path)) {fos.write(bytes);}
+
+        root.addProperty("post_id", post_id + "");
+        
+        JsonObject post_json = new JsonObject();
+        post_json.addProperty("user_id", user_id);
+        post_json.addProperty("post_id", post_id+"");
+        post_json.addProperty("content", content);
+        post_json.addProperty("image_path", image_path);
+        post_json.addProperty("timestamp", timestamp);
+        post_json.add("likes", new JsonArray());
+        post_json.add("comments", new JsonArray());
+
+        root.add(post_id+"", post_json);
+        save(root);
+
+
+        // readable 리스트에 추가
+        Json users = new Json(".user_data/user.json");
+        String temp = users.getFriend(user_id);
+        List<String> friends = gson.fromJson(temp, new TypeToken<List<String>>(){}.getType());
+        friends.add(user_id);
+
+        root = users.loadOrCreate();
+        for (String f : friends) {
+            JsonObject user = root.getAsJsonObject(f);
+            JsonArray readable = user.getAsJsonArray("readable_post");
+            readable.add(post_id + "");
+            if (f.equals(user_id)) {
+                user.getAsJsonArray("post").add(post_id+"");
+            }
+        }
+
+        users.save(root);
+    }
+
+    public synchronized void deletePost(String post_id) throws IOException {
+        JsonObject root = loadOrCreate();
+        JsonObject post = root.getAsJsonObject(post_id);
+        String user_id = post.get("user_id").getAsString();
+        root.remove(post_id);
+
+        save(root);
+
+        // readable 리스트에서 제거
+        Json users = new Json(".user_data/user.json");        
+
+        String temp = users.getFriend(user_id);
+        List<String> friends = gson.fromJson(temp, new TypeToken<List<String>>(){}.getType());
+        friends.add(user_id);
+
+        root = users.loadOrCreate();
+        for (String f : friends) {
+            JsonObject user = root.getAsJsonObject(f);
+            JsonArray readable = user.getAsJsonArray("readable_post");
+            for (int i = 0; i < readable.size(); i++) {
+                if (readable.get(i).getAsString().equals(post_id)) {readable.remove(i); break;}
+            }
+            if (f.equals(user_id)){
+                JsonArray post_arr = user.getAsJsonArray("post");
+                for (int i = 0; i < post.size(); i++) {
+                    if (post_arr.get(i).getAsString().equals(post_id)) {post_arr.remove(i); break;}
+                }
+            }
+        }
+
+        users.save(root);
+    }
 }

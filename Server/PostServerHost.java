@@ -143,6 +143,49 @@ class LikeHandler implements HttpHandler {
     }
 }
 
+class AddPost implements HttpHandler {
+    @Override
+    public void handle(HttpExchange exchange){
+        try{
+            InputStream in = exchange.getRequestBody();
+            String post = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+
+            Json store = new Json(".user_data/post.json");
+
+            store.addPost(post);
+            exchange.sendResponseHeaders(1, -1);
+        } catch (Exception e) {
+            System.out.println("PostServerHost.AddPost Err!");
+            e.printStackTrace();
+        }
+        
+        exchange.close();
+        return;
+    }
+}
+
+class DeletePost implements HttpHandler {
+    @Override
+    public void handle(HttpExchange exchange){
+        try{
+            InputStream in = exchange.getRequestBody();
+            String post_id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+
+            Json store = new Json(".user_data/post.json");
+
+            store.deletePost(post_id);
+            exchange.sendResponseHeaders(1, -1);
+        } catch (Exception e) {
+            System.out.println("PostServerHost.DeletePost Err!");
+            e.printStackTrace();
+        }
+        
+        exchange.close();
+        return;
+    }
+}
+
+
 public class PostServerHost {
     private static final int port = 8002;
 
@@ -170,6 +213,8 @@ public class PostServerHost {
         server.createContext("/AddComment", new AddCommentHandler());
         server.createContext("/DeleteComment", new DeleteCommentHandler());
         server.createContext("/Like", new LikeHandler());
+        server.createContext("/AddPost", new AddPost());
+        server.createContext("/DeletePost", new DeletePost());
         
 
         server.setExecutor(null);

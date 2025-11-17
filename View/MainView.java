@@ -1,6 +1,7 @@
 package View;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 
 import com.google.gson.JsonObject;
 
@@ -12,11 +13,84 @@ import java.util.*;
 import java.util.List;
 import java.io.*;
 import javax.imageio.ImageIO;
+import java.nio.file.*;
 
 import App.Navigator;
 import Resize.Resize;
 import Server.*;
 
+class PostDialogBtnListener extends JPanel implements ActionListener {
+    JDialog dialog;
+    RoundButton btn;
+    JFileChooser chooser;
+    JTextArea area;
+    
+    public PostDialogBtnListener() {
+        setPreferredSize(new Dimension(500, 400));
+        setLayout(new BorderLayout(0,10));
+        setBackground(Color.decode("#141414"));
+        setBorder(BorderFactory.createEmptyBorder(15,20,10,20));
+
+
+        JPanel panel = new JPanel();
+        panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
+        panel.setBackground(Color.decode("#141414"));
+        
+        JLabel label = new JLabel("파일 경로...");
+        label.setForeground(Color.white);
+        label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
+        label.setOpaque(false);
+
+        btn = new RoundButton("파일 선택", 10);
+        btn.setBackground(Color.decode("#373737"));
+        btn.setForeground(Color.WHITE);
+        chooser = new JFileChooser();
+        FileNameExtensionFilter filter = new FileNameExtensionFilter("Image File", "jpg", "jpeg", "png");
+        btn.addActionListener(e -> {
+            chooser.setFileFilter(filter);
+            chooser.showOpenDialog(getParent());
+
+            label.setText(chooser.getSelectedFile().getPath());
+        });
+
+        panel.add(btn);
+        panel.add(label);
+
+        add(panel, BorderLayout.NORTH);
+
+
+        area = new JTextArea();
+        area.setLineWrap(true);
+        area.setBackground(Color.DARK_GRAY);
+        area.setForeground(Color.white);
+        area.setCaretColor(Color.WHITE);
+        area.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+
+        area.setOpaque(true);
+
+        add(area, BorderLayout.CENTER);
+
+
+        btn = new RoundButton("확인", 10);
+        btn.setBackground(Color.decode("#1E90FF"));
+        btn.setForeground(Color.white);
+
+        JPanel temp_panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+        temp_panel.setOpaque(false);
+        temp_panel.add(btn);
+        add(temp_panel, BorderLayout.SOUTH);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+        dialog = new JDialog(null, null, Dialog.ModalityType.APPLICATION_MODAL);
+        dialog.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
+        dialog.getContentPane().add(this);
+        dialog.pack();
+        dialog.setLocationRelativeTo(null);
+        dialog.setVisible(true);
+    }
+}
 
 class Post extends JPanel {
     Map<String, Object> post;
@@ -89,13 +163,24 @@ class Post extends JPanel {
         label.setForeground(Color.white);
         topPanel.add(label, BorderLayout.WEST);
 
+        String post_id = post.get("post_id").toString();
         if (user_id.equals(id)) {
-            ImageIcon icon = new ImageIcon(Resize.resizeImage(".src/trashbin_icon.png", 20, 20, 1));
+            ImageIcon icon = new ImageIcon(Resize.resizeImage(".src/trashbin_icon.png", 20, 20, 0.5f));
             JButton btn = new JButton(icon);
             btn.setOpaque(false);
             btn.setBorderPainted(false);  
             btn.setFocusPainted(false);
             btn.setOpaque(false);
+
+            btn.addActionListener(e -> {
+                Container parent = getParent();
+                server.DeletePostRequest(post_id);
+                parent.remove(this);
+                parent.revalidate();
+                parent.repaint();  
+            });
+
+            topPanel.add(btn, BorderLayout.EAST);
         }
         add(topPanel, BorderLayout.NORTH);
 
@@ -135,7 +220,6 @@ class Post extends JPanel {
         like_count_label.setFont(new Font("Arial", Font.BOLD, 18));
         like_count_label.setForeground(Color.white);
 
-        String post_id = post.get("post_id").toString();
         like_btn.addActionListener(e -> {
             if (likes.contains(id)) {
                 likes.remove(id);
@@ -256,10 +340,42 @@ class MainTopPanel extends JPanel {
 
         refreshBtn.addActionListener(e -> {center.refresh();});
 
+
+        icon = new ImageIcon(Resize.resizeImage(".src/new_post_icon.png", s, s, 1));
+        JButton postBtn = new JButton(icon);
+        postBtn.setBackground(Color.decode("#141414"));
+        postBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+    
+        postBtn.setOpaque(true);
+        postBtn.setContentAreaFilled(true);
+        postBtn.setBorderPainted(false);
+        postBtn.setFocusPainted(false);  
+
+        PostDialogBtnListener dialog = new PostDialogBtnListener();
+        dialog.btn.addActionListener(e -> {
+            String content = dialog.area.getText();
+            File img = dialog.chooser.getSelectedFile();
+            try {
+                String encoded_img = Base64.getEncoder().encodeToString(Files.readAllBytes(img.toPath()));
+                center.server.AddPostRequest(id, content, encoded_img);
+                center.refresh();
+                dialog.dialog.dispose();
+            } catch (IOException ec) {
+                JOptionPane.showMessageDialog(
+                    null,
+                    "이미지 파일을 찾을 수 없습니다.",
+                    "경고", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        postBtn.addActionListener(dialog);
+
+        
+        btnPanel.add(postBtn);
         btnPanel.add(refreshBtn);
         btnPanel.add(friendBtn);        
         btnPanel.add(messegeBtn);
-
+        
         add(btnPanel, BorderLayout.EAST);
     }
 }
@@ -274,7 +390,6 @@ class MainCenterPanel extends JPanel {
     JScrollPane scrollPane;
 
     class ScrollableListPanel extends JPanel implements Scrollable {
-
         @Override
         public Dimension getPreferredScrollableViewportSize() {
             return getPreferredSize();
