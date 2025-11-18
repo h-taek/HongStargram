@@ -2,9 +2,9 @@ javac -encoding UTF-8 -cp "lib/*" -d out Server/InfoServerHost.java Server/ChatS
 
 jar cfm myserver.jar manifest.txt -C out .
 
-docker build -t htaeky/serverhost:1.2 .   
+docker build -t htaeky/java_server:latest .   
 docker rm -f serverhost || true
-docker run -d --name serverhost -p 8000:8000 -p 8001:8001 -p 8002:8002 htaeky/serverhost:1.2
-docker logs -f serverhost
+docker run -d --name Java_server -p 8003:8003 -p 8004:8004 -p 8005:8005 htaeky/java_server:latest
+docker logs -f Java_server
 
-docker push htaeky/serverhost:1.2
+docker push htaeky/java_server:latest

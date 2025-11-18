@@ -1,8 +1,12 @@
-=== 기본 기능 ===
-피드 작성/삭제 서버 구현
-피드 작성/삭제 GUI 구현
+oracle 주소 : htaeky.iptime.org:8000/FREEPDB1
+sqlplus sys/00000000@htaeky.iptime.org:8000/FREEPDB1 as sysdba
+sqlplus user1/00000000@htaeky.iptime.org:8000/FREEPDB1
 
-단체 채팅방 구현
+api 서버 주소 : 
+    htaeky.iptime.org:8002
+    htaeky.iptime.org:8003
+    htaeky.iptime.org:8004
+
 
 
 === 추가 기능 ===

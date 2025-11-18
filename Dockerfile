@@ -6,5 +6,5 @@ VOLUME ["/app/.user_data"]
 VOLUME ["/app/.user_data/chat"]
 VOLUME ["/app/.user_data/image"]
 ENV TZ=Asia/Seoul
-EXPOSE 8000 8001 8002
+EXPOSE 8003 8004 8005
 ENTRYPOINT ["java","-jar","/app/myserver.jar"]
