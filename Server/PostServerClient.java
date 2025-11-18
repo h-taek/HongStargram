@@ -13,7 +13,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class PostServerClient {
     static private String hostIp = IP.ip;
-    static int port = 8002;
+    static int port = 8005;
 
     public String [] GetReadablePostRequest(String id) {
         try{

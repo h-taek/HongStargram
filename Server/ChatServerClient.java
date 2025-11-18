@@ -9,7 +9,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class ChatServerClient {
     private static final String host_ip = IP.ip; // 서버 IP
-    private static final int port = 8001;               // 서버 포트
+    private static final int port = 8004;               // 서버 포트
 
     private String sender;
     private String [] receiver;

@@ -11,7 +11,7 @@ import com.google.gson.reflect.TypeToken;
 
 public class InfoServerClient {
     static private String hostIp = IP.ip;
-    static int port = 8000;
+    static int port = 8003;
 
     public int SignupRequest(String id, String pw, String nName) {
         try{

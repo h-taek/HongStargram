@@ -268,7 +268,7 @@ class FriendRequestHandler implements HttpHandler {
 }
 
 public class InfoServerHost {
-    private static final int port = 8000;
+    private static final int port = 8003;
 
     private static String getLoclaIp() throws IOException {
         try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {

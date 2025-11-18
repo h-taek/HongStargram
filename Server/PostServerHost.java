@@ -187,7 +187,7 @@ class DeletePost implements HttpHandler {
 
 
 public class PostServerHost {
-    private static final int port = 8002;
+    private static final int port = 8005;
 
     private static String getLoclaIp() throws IOException {
         try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {

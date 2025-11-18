@@ -10,7 +10,7 @@ import com.google.gson.reflect.TypeToken;
 import Json.Json;
 
 public class ChatServerHost {
-    static final int port = 8001;
+    static final int port = 8004;
     private static final Map<String, PrintWriter> CLIENTS = 
                 Collections.synchronizedMap(new HashMap<>()); // 모든 클라이언트의 출력 스트림을 보관 (동기화된 Set)
 
