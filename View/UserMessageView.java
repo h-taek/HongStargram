@@ -11,9 +11,11 @@ import App.Navigator;
 import Server.*;
 
 class Message {
+    final String sender;
     final String text;
     final boolean mine;
-    Message(String text, boolean mine) {
+    Message(String sender, String text, boolean mine) {
+        this.sender = sender;
         this.text = text; 
         this.mine = mine;
     }
@@ -90,35 +92,32 @@ class RoundTextField extends JTextField {
     }
 }
 
-class BubbleRenderer extends JPanel implements ListCellRenderer<Message> {
+class BubbleRenderer extends JPanel {
     private final RoundTextArea area = new RoundTextArea(10);
     private final Color mineBg = new Color(0x2D76FF);  // 파랑
     private final Color otherBg = new Color(0x2A2A2A); // 진회색
 
     BubbleRenderer() {
         setLayout(new FlowLayout());
-
         area.setLineWrap(true);
         area.setWrapStyleWord(true);
         area.setEditable(false);
-        
+
         setOpaque(true);
-        setBorder(BorderFactory.createEmptyBorder(6,6,6,6));
+        setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 5)); // 메세지 버블 외부 간격
         add(area);
     }
 
-    @Override
-    public Component getListCellRendererComponent(
-        JList<? extends Message> list, Message value, 
+    public void configure(
+        JList<? extends Message> list, Message value,
         int index, boolean isSelected, boolean cellHasFocus
-    ) 
-    {
+    ) {
         area.setForeground(Color.WHITE);
         area.setText(value.text);
         area.setBubbleColor(value.mine ? mineBg : otherBg);
-        area.setBorder(BorderFactory.createEmptyBorder(5,8,5,8));
+        area.setBorder(BorderFactory.createEmptyBorder(5, 8, 5, 8)); // 메세지 버블 내부 간격
 
-        int max_w = (int)Math.round(list.getWidth() * 0.65);
+        int max_w = (int) Math.round(list.getWidth() * 0.65);
         int min_w = 60;
 
         FontMetrics fm = area.getFontMetrics(area.getFont());
@@ -132,9 +131,46 @@ class BubbleRenderer extends JPanel implements ListCellRenderer<Message> {
         int width = Math.max(min_w, Math.min(max_w, max_line));
         area.setSize(new Dimension(width, Short.MAX_VALUE));
 
-
-        ((FlowLayout)getLayout()).setAlignment(value.mine ? FlowLayout.RIGHT : FlowLayout.LEFT);
+        ((FlowLayout) getLayout()).setAlignment(value.mine ? FlowLayout.RIGHT : FlowLayout.LEFT);
         setBackground(list.getBackground());
+    }
+}
+
+class MessageCellRenderer extends JPanel implements ListCellRenderer<Message> {
+    private final JLabel senderLabel = new JLabel();
+    private final BubbleRenderer bubble = new BubbleRenderer();
+    Map<String, String> receiver;
+
+    MessageCellRenderer(Map<String, String> receiver) {
+        this.receiver = receiver;
+
+        setLayout(new BorderLayout());
+        setOpaque(false);
+        setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
+
+        senderLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        senderLabel.setForeground(Color.LIGHT_GRAY);
+        senderLabel.setBorder(new EmptyBorder(0, 5, 0, 0));
+
+        add(senderLabel, BorderLayout.NORTH);
+        add(bubble, BorderLayout.CENTER);
+    }
+
+    @Override
+    public Component getListCellRendererComponent(
+        JList<? extends Message> list, Message value,
+        int index, boolean isSelected, boolean cellHasFocus
+    ) {
+        // sender는 상대 메시지에서만 표시
+        if (value.mine) {
+            senderLabel.setText("");
+            senderLabel.setVisible(false);
+        } else {
+            senderLabel.setText(receiver.get(value.sender));
+            senderLabel.setVisible(true);
+        }
+
+        bubble.configure(list, value, index, isSelected, cellHasFocus);
         return this;
     }
 }
@@ -143,10 +179,10 @@ class UserMessegeTopPanel extends JPanel {
     Navigator nav;
     String sender;
     String se_nName;
-    String re_nName;
+    String [] re_nName;
     
 
-    public UserMessegeTopPanel(Navigator nav, String sender, String se_nName, String re_nName){
+    public UserMessegeTopPanel(Navigator nav, String sender, String se_nName, String [] re_nName){
         this.nav = nav;
         this.sender = sender;
         this.se_nName = se_nName;
@@ -170,7 +206,8 @@ class UserMessegeTopPanel extends JPanel {
         
         add(btn, BorderLayout.WEST);
 
-        JLabel label = new JLabel(re_nName);
+        String re_nName_str = String.join(", ", re_nName);
+        JLabel label = new JLabel(re_nName_str);
         label.setForeground(Color.white);
         label.setFont(new Font("Arial", Font.PLAIN, 20));
 
@@ -185,10 +222,10 @@ class ChatListPanel extends JPanel {
     
     private boolean initialRefreshDone = false;
 
-    ChatListPanel() {
+    ChatListPanel(Map<String, String> receiver) {
         setLayout(new BorderLayout());
 
-        list.setCellRenderer(new BubbleRenderer());
+        list.setCellRenderer(new MessageCellRenderer(receiver));
         list.setBackground(new Color(0x141414));
         list.setFixedCellHeight(-1);
         
@@ -229,7 +266,7 @@ class InputBarPanel extends JPanel {
     ChatListPanel list;
     ChatServerClient c_server;
 
-    InputBarPanel(ChatListPanel list, ChatServerClient c_server) {
+    InputBarPanel(ChatListPanel list, String id, ChatServerClient c_server) {
         this.list = list;
         this.c_server = c_server;
 
@@ -243,8 +280,8 @@ class InputBarPanel extends JPanel {
         input.setForeground(Color.WHITE);
         input.setCaretColor(Color.WHITE);
         
-        send.addActionListener(e -> sendMessage(input));
-        input.addActionListener(e -> sendMessage(input));
+        send.addActionListener(e -> sendMessage(id, input));
+        input.addActionListener(e -> sendMessage(id, input));
 
         setLayout(new BorderLayout(6,0));
         setBorder(BorderFactory.createEmptyBorder(5,5,5,5));
@@ -254,8 +291,8 @@ class InputBarPanel extends JPanel {
         add(send, BorderLayout.EAST);
     }
 
-    private void sendMessage(JTextField input){
-        Message msg = new Message(input.getText().trim(), true);
+    private void sendMessage(String id, JTextField input){
+        Message msg = new Message(id, input.getText().trim(), true);
         if (msg.text.isEmpty()) return;
         list.addMessage(msg);
         c_server.sendMessage(input.getText().trim());
@@ -267,14 +304,12 @@ class InputBarPanel extends JPanel {
 public class UserMessageView extends JFrame {
     Navigator nav;
     String sender;
-    String receiver;
-    String re_nName;
+    Map<String, String> receiver;
 
-    public UserMessageView(Navigator nav, String sender, String receiver, String se_nName, String re_nName) {
+    public UserMessageView(Navigator nav, String sender, String se_nName, Map<String, String> receiver) {
         this.nav = nav;
         this.sender = sender;
         this.receiver = receiver;
-        this.re_nName = re_nName;
         
         setTitle("HongStar");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -283,26 +318,26 @@ public class UserMessageView extends JFrame {
         setBackground(Color.decode("#141414"));
         setLayout(new BorderLayout());
         
-        UserMessegeTopPanel top = new UserMessegeTopPanel(nav, sender, se_nName, re_nName);
-        ChatListPanel chat = new ChatListPanel();
-        ChatServerClient chat_server = new ChatServerClient(sender, receiver, new ChatListener() {
+        UserMessegeTopPanel top = new UserMessegeTopPanel(nav, sender, se_nName, receiver.values().toArray(new String[0]));
+        ChatListPanel chat = new ChatListPanel(receiver);
+        ChatServerClient chat_server = new ChatServerClient(sender, receiver.keySet().toArray(new String[0]), new ChatListener() {
             @Override
-            public void onMessage(String msg_) {
-                Message msg = new Message(msg_, false);
+            public void onMessage(String sender, String msg_) {
+                Message msg = new Message(sender, msg_, false);
                 chat.addMessage(msg);
             }
         });
-        InputBarPanel inputBar = new InputBarPanel(chat, chat_server);
+        InputBarPanel inputBar = new InputBarPanel(chat, sender, chat_server);
 
         List<Map<String, String>> chat_history = chat_server.chat_log;
         if (chat_history != null){
             for (Map<String, String> c : chat_history) {
                 Message msg;
                 if (c.get("sender").equals(sender)) {
-                    msg = new Message(c.get("msg"), true);
+                    msg = new Message(c.get("sender"), c.get("msg"), true);
                 }
                 else {
-                    msg = new Message(c.get("msg"), false);
+                    msg = new Message(c.get("sender"), c.get("msg"), false);
                 }
                 chat.addMessage(msg);
             }

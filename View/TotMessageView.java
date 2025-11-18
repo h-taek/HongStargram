@@ -1,14 +1,19 @@
 package View;
 
 import javax.swing.*;
-import javax.swing.Timer;
 import javax.swing.border.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import App.Navigator;
 import Server.*;
+import Resize.Resize;
 
 class RoundButton2 extends JButton {
     private Icon icon;
@@ -111,36 +116,35 @@ class JDialogBtnListener extends JPanel implements ActionListener {
 class MessagePanel extends JPanel{
     Navigator nav;
     String sender;
-    String receiver;
+    Map<String, String> receiver;
     String se_nName;
-    String re_nName;
 
-    MessagePanel(Navigator nav, String sender, String receiver, String se_nName, String re_nName) {
+    MessagePanel(Navigator nav, String sender, String se_nName, Map<String, String> receiver) {
         this.nav = nav;
         this.sender = sender;
         this.receiver = receiver;
         this.se_nName = se_nName;
-        this.re_nName = re_nName;
 
         setOpaque(false);
-        setLayout(null);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        ImageIcon icon = new ImageIcon(".src/person_icon.png");
-        final JButton btn = new JButton(re_nName, icon);
+        List<String> re_nName = new ArrayList<>(receiver.values());
+        String re_nName_str = String.join(", ", re_nName);
+        ImageIcon icon = new ImageIcon(Resize.resizeImage(".src/person_icon.png", 40, 40, 1));
+        final JButton btn = new JButton(re_nName_str, icon);
 
-        btn.setBounds(0, 0, 500, 75);
         btn.setBackground(Color.decode("#141414"));
         btn.setForeground(Color.WHITE);
-        btn.setFont(new Font("Arial", Font.PLAIN, 25));
+        btn.setFont(new Font("Arial", Font.PLAIN, 20));
 
-        Border line = BorderFactory.createMatteBorder(0, 0, 1, 0, Color.DARK_GRAY);
-        Border pad  = BorderFactory.createEmptyBorder(0, 10, 0, 0);
-        btn.setBorder(BorderFactory.createCompoundBorder(line, pad));
+        btn.setPreferredSize(new Dimension(0, 60));
+        btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));
+        btn.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         btn.setBorder(BorderFactory.createCompoundBorder(
-                btn.getBorder(),                          // 기존 테두리 유지
-                BorderFactory.createEmptyBorder(0, 0, 0, 0)
-        ));
+            BorderFactory.createMatteBorder(0, 0, 1, 0, Color.DARK_GRAY), 
+            BorderFactory.createEmptyBorder(0, 10, 0, 0))
+        );
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         btn.setHorizontalTextPosition(SwingConstants.RIGHT);
@@ -148,8 +152,6 @@ class MessagePanel extends JPanel{
         btn.setIconTextGap(8);  
         btn.setHorizontalAlignment(SwingConstants.LEFT);
         btn.setVerticalAlignment(SwingConstants.CENTER);
-
-        btn.setMargin(new Insets(0, 20, 0, 0));
 
         btn.setOpaque(true);
         btn.setContentAreaFilled(true);
@@ -159,13 +161,10 @@ class MessagePanel extends JPanel{
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                nav.openUserMessage(sender, receiver, se_nName, re_nName);
+                nav.openUserMessage(sender, se_nName, receiver);
             }
         });
         add(btn);
-
-        setPreferredSize(new Dimension(0, 75));
-        setMaximumSize(new Dimension(Integer.MAX_VALUE, 75));
     }
 }
 
@@ -207,9 +206,19 @@ class TotMessagePanel extends JPanel {
 
         listPanel.removeAll(); // 이전 메시지 패널 초기화
         if (ids != null){
-            for (String receiver : ids) {
-                String re_nName = server.GetNNameRequest(receiver);
-                listPanel.add(new MessagePanel(nav, id, receiver, nName, re_nName));
+            for (String r : ids) {
+                List<String> receiver_list = new ArrayList<String>(Arrays.asList(r.split("\\|")));
+                receiver_list.remove(id); 
+
+                Map<String, String> receiver_map = new HashMap<>();
+                List<String> re_nName_list = new ArrayList<>();
+                for (String rec : receiver_list) {
+                    String name = server.GetNNameRequest(rec);
+                    receiver_map.put(rec, name);
+                }
+                
+
+                listPanel.add(new MessagePanel(nav, id, nName, receiver_map));
             }
         }
         listPanel.revalidate();
@@ -230,13 +239,15 @@ class TotMessegeBtnPanel extends JPanel {
         this.nName = nName;
         this.server = server;
         
-        setLayout(null);
-        setOpaque(false);
-        setBackground(new Color(0,0,0,0));
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
+        setBackground(Color.decode("#242424"));
 
-        Icon back_icon = new ImageIcon(".src/back_arrow_icon.png");
-        RoundButton2 back_btn = new RoundButton2(back_icon);
-        back_btn.setBounds(20, 700, 50, 50);
+        Icon back_icon = new ImageIcon(Resize.resizeImage(".src/back_arrow_icon.png", 30, 30, 1));
+        JButton back_btn = new JButton(back_icon);
+        back_btn.setOpaque(false);
+        back_btn.setContentAreaFilled(false);
+        back_btn.setBorderPainted(false);
+        back_btn.setFocusPainted(false);
 
         back_btn.addActionListener(new ActionListener() {
             @Override
@@ -246,29 +257,49 @@ class TotMessegeBtnPanel extends JPanel {
         });
 
         add(back_btn);
+        add(Box.createHorizontalGlue());
 
 
-        Icon chat_icon = new ImageIcon(".src/chat_icon.png");
-        RoundButton2 chat_btn = new RoundButton2(chat_icon);
-        chat_btn.setBounds(430, 700, 50, 50);
-        JDialogBtnListener dialog = new JDialogBtnListener("메세지를 보낼 ID를 입력하세요");
+        ImageIcon chat_icon = new ImageIcon(Resize.resizeImage(".src/chat_icon.png", 30, 30, 1));
+        JButton chat_btn = new JButton(chat_icon);
+        JDialogBtnListener dialog = new JDialogBtnListener("메세지를 보낼 ID를 입력하세요 (, 로 id 구분)");
+        chat_btn.setOpaque(false);
+        chat_btn.setContentAreaFilled(false);
+        chat_btn.setBorderPainted(false);
+        chat_btn.setFocusPainted(false);
+
         dialog.btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 String se_nName = server.GetNNameRequest(id);
                 
-                String receiver = dialog.field.getText();
-                String re_nName = server.GetNNameRequest(receiver);
-                if (re_nName == null || id.equals(receiver)) {
-                    JOptionPane.showMessageDialog(
+                String [] receiver = dialog.field.getText().replace(" ","").split(",| ");
+
+                Map<String, String> receiver_map = new HashMap<>();
+                for(String r : receiver){
+                    String name = server.GetNNameRequest(r);
+                    if (r.equals(id)) {
+                        JOptionPane.showMessageDialog(
                                 null,
-                                "잘못된 접근입니다.",
+                                "자기 자신에게는 메세지를 보낼 수 없습니다.",
                                 "경고", JOptionPane.WARNING_MESSAGE
                                 );
-                    return;
+                        return;
+                    }
+
+                    if (name != null){
+                        receiver_map.put(r, name);
+                    } else {
+                        JOptionPane.showMessageDialog(
+                                null,
+                                "존재하지 않는 ID가 포함되어 있습니다.",
+                                "경고", JOptionPane.WARNING_MESSAGE
+                                );
+                        return;
+                    }
                 }
 
-                nav.openUserMessage(id, receiver, se_nName, re_nName);
+                nav.openUserMessage(id, se_nName, receiver_map);
                 dialog.dialog.dispose();
             }
         });
@@ -294,7 +325,7 @@ public class TotMessageView extends JFrame {
         setSize(500, 800);
         setLocationRelativeTo(null);
         setBackground(Color.decode("#141414"));
-        setLayout(null);
+        setLayout(new BorderLayout());
 
         TotMessagePanel totPanel = new TotMessagePanel(nav, id, nName, server);
         totPanel.setBounds(0, 0, 500, 800);
@@ -303,9 +334,8 @@ public class TotMessageView extends JFrame {
         btnPanel.setBounds(0, 0, 500, 800);
 
         // 레이어 우선순위 설정
-        JLayeredPane layeredPane = getLayeredPane();
-        layeredPane.add(totPanel, JLayeredPane.DEFAULT_LAYER);
-        layeredPane.add(btnPanel, JLayeredPane.PALETTE_LAYER);
+        add(totPanel, BorderLayout.CENTER);
+        add(btnPanel, BorderLayout.NORTH);
 
         setVisible(true);
     }

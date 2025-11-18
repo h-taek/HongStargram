@@ -12,9 +12,9 @@ public class ChatServerClient {
     private static final int port = 8001;               // 서버 포트
 
     private String sender;
-    private String receiver;
+    private String [] receiver;
     public List<Map<String, String>> chat_log;
-    private String msg;
+    private String line;
 
     private Socket socket;
     BufferedReader in;
@@ -22,7 +22,7 @@ public class ChatServerClient {
 
     private ChatListener cl;
 
-    public ChatServerClient(String sender, String receiver, ChatListener cl) {
+    public ChatServerClient(String sender, String [] receiver, ChatListener cl) {
         this.sender = sender;
         this.receiver = receiver;
         this.cl = cl;
@@ -32,12 +32,14 @@ public class ChatServerClient {
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
 
+            Gson gson = new Gson();
+
+            String json = "{\"sender\":\"" + sender + "\",\"receiver\": " + gson.toJson(receiver) + "}";
             // id 전송
-            out.println(sender + " " + receiver);
+            out.println(json);
 
             // 첫 입력은 채팅 히스토리
             String temp = in.readLine();
-            Gson gson = new Gson();
             chat_log = gson.fromJson(temp, new TypeToken<List<Map<String, String>>>(){}.getType());
 
             System.out.println("Server connected : " + socket.getRemoteSocketAddress());
@@ -45,8 +47,11 @@ public class ChatServerClient {
             // 서버에서 오는 메시지를 스레드로 수신
             Thread reader = new Thread(() -> {
                 try {
-                    while ((msg = in.readLine()) != null) {
-                        if (cl != null) {cl.onMessage(msg);}
+                    while ((line = in.readLine()) != null) {
+                        Map<String, String> body = gson.fromJson(line, new TypeToken<Map<String, String>>(){}.getType());
+                        String s = body.get("sender");
+                        String msg = body.get("msg");
+                        if (cl != null) {cl.onMessage(s, msg);}
                     }
                 } catch (IOException ignore) {
                 } finally {

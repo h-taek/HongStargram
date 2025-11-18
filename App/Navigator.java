@@ -11,7 +11,7 @@ public interface Navigator {
     void openMain(String id, String Nname);
     void openTotMessage(String id, String Nname);
     void openFriend(String id, String nName);
-    void openUserMessage(String sender, String receiver,String se_nName, String re_nName);
+    void openUserMessage(String sender, String se_nName, Map<String, String> receiver);
     void openComments(List<Map<String, String>> comments, String id, String nName, String post_id);
 }
 
@@ -50,8 +50,8 @@ class App implements Navigator{
     }
 
     @Override
-    public void openUserMessage(String sender, String receiver,String se_nName, String re_nName) {
-        SwingUtilities.invokeLater(() -> show (new UserMessageView(this, sender, receiver, se_nName, re_nName)));
+    public void openUserMessage(String sender, String se_nName, Map<String, String> receiver) {
+        SwingUtilities.invokeLater(() -> show (new UserMessageView(this, sender, se_nName, receiver)));
     }
 
     @Override

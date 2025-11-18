@@ -133,12 +133,12 @@ class ChatListHandler implements HttpHandler {
             String id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             // System.out.println(id);
 
-            Json store = new Json(".user_data/chat/chat_" + id + ".json");
+            Json store = new Json(".user_data/chat/chat.json");
 
             String chat_list = store.getChatList(id);
             // System.out.println(info);
             byte[] payload = chat_list.getBytes(StandardCharsets.UTF_8);
-            exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
+            exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
             exchange.sendResponseHeaders(1, payload.length);
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(payload);

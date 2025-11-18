@@ -1,5 +1,5 @@
 package Server;
 
 public interface ChatListener {
-    void onMessage(String msg);
+    void onMessage(String sender, String msg);
 }

@@ -4,7 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-// import com.google.gson.JsonObject;
+import com.google.gson.*;
+import com.google.gson.reflect.TypeToken;
 
 import Json.Json;
 
@@ -21,17 +22,19 @@ public class ChatServerHost {
         }
     }
 
-    // 한 명에게만 메세지 전송
-    private static void sendMessage(String sender, String receiver, 
-                String msg, Json chat_sender, Json chat_receiver) {
-        PrintWriter target = CLIENTS.get(receiver);
+    // 메세지 전송
+    private static void sendMessage(String sender, List<String> receiver, String chat_id, 
+                String msg, Json chat) {
         try {
-            chat_sender.addChat(sender, receiver, msg);
-            chat_receiver.addChat(sender, sender, msg);
+            chat.addChat(chat_id, sender, msg);
             
-            if (target != null) {
-                target.println(msg);
-                target.flush();
+            for (String r : receiver) {
+                PrintWriter target = CLIENTS.get(r);
+                if (target != null) {
+                    String json = "{\"sender\":\"" + sender + "\",\"msg\":\"" + msg + "\"}";
+                    target.println(json);
+                    target.flush();
+                }
             }
         } catch (Exception e) {System.out.println("ChatServerHost.sendMessage Err");}
     }
@@ -40,12 +43,10 @@ public class ChatServerHost {
     static class ClientHandler implements Runnable {
         private final Socket socket;
         private String sender;
-        private String receiver;
         private BufferedReader in;
         private PrintWriter out;
 
-        Json chat_sender;
-        Json chat_receiver;
+        Json chat;
 
         ClientHandler(Socket socket) {
             this.socket = socket;
@@ -58,29 +59,33 @@ public class ChatServerHost {
                 out = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true); // autoFlush
                 
                 // 첫 입력은 id
-                String [] id = in.readLine().split(" ");
-                if (id[1].equals("/")) return;
+                String body = in.readLine();
+                Gson gson = new Gson();
+                Map<String, Object> temp = gson.fromJson(body, new TypeToken<Map<String, Object>>(){}.getType());
 
-                sender = id[0]; receiver = id[1];
+                String sender = temp.get("sender").toString();
+                List<String> receiver_list = (ArrayList<String>) temp.get("receiver");
+                List<String> id = new ArrayList<>(receiver_list);
+                id.add(sender);
+                id.sort(null);
+                String chat_id = String.join("|", id);
 
                 // 접속 즉시 출력 스트림을 등록
                 CLIENTS.put(sender ,out);
 
-                chat_sender = new Json(".user_data/chat/chat_" + sender + ".json");
-                chat_receiver = new Json(".user_data/chat/chat_" + receiver + ".json");
+                chat = new Json(".user_data/chat/chat.json");
 
                 // 접속하면 서버의 기록을 전송
-                String chat_log = chat_sender.getChat(receiver);
+                String chat_log = chat.getChat(chat_id);
                 out.println(chat_log);
                 
-
                 InetSocketAddress isa = (InetSocketAddress) socket.getRemoteSocketAddress();
                 System.out.printf("Client connected : %s (%s)\n", sender, isa.getAddress().getHostAddress());
 
                 //메세지를 입력받고 전송
                 String line;
                 while ((line = in.readLine()) != null) {
-                    sendMessage(sender, receiver, line, chat_sender, chat_receiver);
+                    sendMessage(sender, receiver_list, chat_id, line, chat);
                 }
             } catch (IOException e) { 
             } finally {

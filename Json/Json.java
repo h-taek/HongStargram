@@ -74,17 +74,17 @@ public class Json {
         return nName;
     }
 
-    public synchronized void addChat(String sender, String receiver, String msg) throws IOException{
+    public synchronized void addChat(String chat_id, String sender, String msg) throws IOException{
         JsonObject root = loadOrCreate();
 
         JsonObject chat = new JsonObject();
         chat.addProperty("sender", sender);
         chat.addProperty("msg", msg);
 
-        JsonArray chat_arr = root.getAsJsonArray(receiver);
+        JsonArray chat_arr = root.getAsJsonArray(chat_id);
         if (chat_arr == null) {
             chat_arr = new JsonArray();
-            root.add(receiver, chat_arr);
+            root.add(chat_id, chat_arr);
         }
 
         chat_arr.add(chat);
@@ -95,7 +95,13 @@ public class Json {
     public synchronized String getChatList(String id) throws IOException{
         JsonObject root = loadOrCreate();
         Set<String> temp = root.keySet();
-        String keys = gson.toJson(temp);
+        List<String> chat_list = new ArrayList<>();
+        for (String key : temp) {
+            if (key.contains(id)) {
+                chat_list.add(key);
+            }
+        }
+        String keys = gson.toJson(chat_list);
         return keys;
     }
 
