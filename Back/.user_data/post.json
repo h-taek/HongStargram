@@ -1,0 +1,75 @@
+{
+  "post_id": "5",
+  "comment_id": "16",
+  "1": {
+    "user_id": "1234",
+    "post_id": "1",
+    "content": "Hello World!",
+    "image_path": "Back/.user_data/image/img_1.jpeg",
+    "timestamp": "20251110080000",
+    "likes": [
+      "12345",
+      "C193228",
+      "1234"
+    ],
+    "comments": [
+      {
+        "id": "12345",
+        "comment": "ㅎㅎ",
+        "comment_id": "1"
+      },
+      {
+        "id": "C193228",
+        "comment": "ㄱㅇㅇ",
+        "comment_id": "2"
+      }
+    ]
+  },
+  "2": {
+    "user_id": "1234",
+    "post_id": "2",
+    "content": "동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세\n무궁화 삼천리 화려강산 대한사람 대한으로 길이 보전하세\n동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세\n무궁화 삼천리 화려강산 대한사람 대한으로 길이 보전하세\n동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세\n무궁화 삼천리 화려강산 대한사람 대한으로 길이 보전하세\n동해물과 백두산이 마르고 닳도록 하느님이 보우하사 우리나라 만세\n무궁화 삼천리 화려강산 대한사람 대한으로 길이 보전하세\n",
+    "image_path": "Back/.user_data/image/img_2.jpeg",
+    "timestamp": "20251110080000",
+    "likes": [
+      "12345",
+      "C193228",
+      "1234"
+    ],
+    "comments": [
+      {
+        "id": "12345",
+        "comment": "ㅎㅎ",
+        "comment_id": "3"
+      },
+      {
+        "id": "1234",
+        "comment": "왜 됌",
+        "comment_id": "14"
+      }
+    ]
+  },
+  "3": {
+    "user_id": "1234",
+    "post_id": "3",
+    "content": "Hello World!",
+    "image_path": "Back/.user_data/image/img_3.jpeg",
+    "timestamp": "20251110080000",
+    "likes": [
+      "12345",
+      "C193228"
+    ],
+    "comments": [
+      {
+        "id": "12345",
+        "comment": "ㅎㅎ",
+        "comment_id": "5"
+      },
+      {
+        "id": "C193228",
+        "comment": "ㄱㅇㅇ",
+        "comment_id": "6"
+      }
+    ]
+  }
+}

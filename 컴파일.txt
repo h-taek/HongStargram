@@ -1,4 +1,4 @@
-javac -encoding UTF-8 -cp "lib/*" -d out Server/InfoServerHost.java Server/ChatServerHost.java Server/PostServerHost.java App/Server.java Json/Json.java
+javac -encoding UTF-8 -cp "lib/*" -d out Back/API/*.java Back/Data/*.java
 
 jar cfm myserver.jar manifest.txt -C out .
 

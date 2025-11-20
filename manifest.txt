@@ -1,2 +1,2 @@
-Main-Class: App.Server
-Class-Path: lib/gson-2.13.2.jar
+Main-Class: Back.API.Server
+Class-Path: lib/gson-2.13.2.jar lib/ojdbc17.jar
