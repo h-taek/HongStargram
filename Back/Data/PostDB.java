@@ -324,5 +324,37 @@ public class PostDB {
         }
     }
 
-    //like
+    //addLike
+    public void addLike(int post_id, String user_id) {
+        String sql = "INSERT INTO POST_LIKES (POST_ID, USER_ID) VALUES (?, ?)";
+
+        try (Connection conn = DBManager.getConnection();
+            PreparedStatement psmt = conn.prepareStatement(sql)){
+            
+            psmt.setInt(1, post_id);
+            psmt.setString(2, user_id);
+
+            psmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("addLike Error");
+        }
+    }
+
+    //deleteLike
+    public void deleteLike(int post_id, String user_id) {
+        String sql = "DELETE FROM POST_LIKES WHERE POST_ID = ? AND USER_ID = ?";
+
+        try (Connection conn = DBManager.getConnection();
+            PreparedStatement psmt = conn.prepareStatement(sql)){
+            
+            psmt.setInt(1, post_id);
+            psmt.setString(2, user_id);
+
+            psmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("deleteLike Error");
+        }
+    }
 }
