@@ -1,21 +1,21 @@
-## oracle 주소 : 
+## 1. 서버 주소 
+### 1. DB 주소
 htaeky.iptime.org:8000/FREEPDB1  
 sqlplus sys/00000000@htaeky.iptime.org:8000/FREEPDB1 as sysdba  
 sqlplus user1/00000000@htaeky.iptime.org:8000/FREEPDB1  
 
-
-## api 서버 주소 : 
+### 2. api 서버 주소
 htaeky.iptime.org:8002  
 htaeky.iptime.org:8003  
 htaeky.iptime.org:8004  
 
 
-## 추가 기능  
-리포스트 기능  
+## 2. 추가 기능  
+캘린더 루틴 + AI
 (?????????)
 
 
-## Database Schema (Oracle) 
+## 3. Database Schema (Oracle) 
 ### 1. USERS
 | 컬럼명   | 타입           | 설명                |
 |---------|----------------|---------------------|
