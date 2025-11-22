@@ -73,7 +73,16 @@ class LoginHandler implements HttpHandler {
             String pw = data.get("pw");
             Json store = new Json("Back/.user_data/user.json");
 
+
+            if (!store.getUser(id)) {
+                exchange.sendResponseHeaders(999, -1);
+                exchange.close();
+                return;
+            }
             String [] info = store.getUserInfo(id);
+            // String pw_ = store.getUserPassword(id);
+            // String nName = store.getUserNName(id);
+
             if (info[0].equals(pw)) {
                 String nName = info[1];
                 byte[] payload = nName.getBytes(StandardCharsets.UTF_8);

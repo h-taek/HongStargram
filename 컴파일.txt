@@ -1,10 +1,14 @@
+
 javac -encoding UTF-8 -cp "lib/*" -d out Back/API/*.java Back/Data/*.java
 
 jar cfm myserver.jar manifest.txt -C out .
 
 docker build -t htaeky/java_server:latest .   
-docker rm -f serverhost || true
-docker run -d --name Java_server -p 8003:8003 -p 8004:8004 -p 8005:8005 htaeky/java_server:latest
-docker logs -f Java_server
+
+docker rm -f Java_server || true
+docker run -d --name Java_server \
+  -p 8003:8003 -p 8004:8004 -p 8005:8005 \
+  -v /Users/imhyeongtaeg/Library/Mobile Documents/com~apple~CloudDocs/01_Univercity/2025_2/01_자바프로그래밍 및 실습/04_프로젝트/Back/image:/app/image \
+  htaeky/java_server:latest
 
 docker push htaeky/java_server:latest
