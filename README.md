@@ -67,19 +67,18 @@ htaeky.iptime.org:8004
 ### 8. CHAT_ROOMS (채팅방)
 | 컬럼명 | 타입            | 설명                |
 |---------|-----------------|---------------------|
-| ROOM_ID | VARCHAR2(200)   | 채팅방 고유 ID (PK) |
+| ROOM_ID | NUMBER   | 채팅방 고유 ID (PK) |
 
 ### 9. CHAT_ROOM_MEMBERS (채팅방 멤버)
 | 컬럼명  | 타입            | 설명                 |
 |---------|-----------------|----------------------|
-| ROOM_ID | VARCHAR2(200)   | 채팅방 ID (PK, FK)   |
+| ROOM_ID | NUMBER   | 채팅방 ID (PK, FK)   |
 | USER_ID | VARCHAR2(50)    | 참여자 ID (PK, FK)   |
 
 ### 10. CHAT_MESSAGES (메시지)
 | 컬럼명     | 타입            | 설명             |
 |------------|-----------------|------------------|
-| MESSAGE_ID | NUMBER          | 메시지 ID (PK)   |
-| ROOM_ID    | VARCHAR2(200)   | 채팅방 ID (FK)   |
+| ROOM_ID    | NUMBER   | 채팅방 ID (FK)   |
 | SENDER_ID  | VARCHAR2(50)    | 보낸 사람 (FK)   |
 | MESSAGE    | CLOB            | 메시지 내용       |
 | SENT_AT    | DATE            | 보낸 시간         |

@@ -1,16 +1,17 @@
 package Back.API;
 
-import com.sun.net.httpserver.*;
-
-import Back.Data.Json;
-
 import java.util.*;
 import java.io.*;
 import java.net.InetSocketAddress;
-import com.google.gson.*;
-
 import java.nio.charset.StandardCharsets;
+import com.sun.net.httpserver.*;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
+import Back.Data.UsersDB;
+import Back.Data.ChatDB;
+import Back.Data.FriendDB;
 
 class SignupHandler implements HttpHandler {
     @Override
@@ -20,19 +21,19 @@ class SignupHandler implements HttpHandler {
             String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
             Gson gson = new Gson();
-            Map<String, String> data = gson.fromJson(body, Map.class);
+            Map<String, String> data = gson.fromJson(body, new TypeToken<Map<String, String>>(){}.getType());
 
             String id = data.get("id");
             String pw = data.get("pw");
             String nName = data.get("nName");
-            Json store = new Json("Back/.user_data/user.json");
+            UsersDB usersDB = new UsersDB();
             
             String response = "";
-            if (store.getUser(id)) {
+            if (usersDB.isUser(id)) {
                 response = "User exists";
                 exchange.sendResponseHeaders(999, response.length());
             } else {
-                store.addUser(id, pw, nName);
+                usersDB.addUser(id, pw, nName);
                 response = "Success";
                 exchange.sendResponseHeaders(1, response.length());
             }
@@ -44,15 +45,6 @@ class SignupHandler implements HttpHandler {
         } catch (Exception e) {
             System.out.println("InfoServerHost.SignupHandler Err!");
             e.printStackTrace();
-            try {
-                String error = "Server Error";
-                exchange.sendResponseHeaders(500, error.length());
-                try (OutputStream os = exchange.getResponseBody()) {
-                    os.write(error.getBytes());
-                }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
         } finally {
             exchange.close();
         }
@@ -67,24 +59,22 @@ class LoginHandler implements HttpHandler {
             String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
             Gson gson = new Gson();
-            Map<String, String> data = gson.fromJson(body, Map.class);
+            Map<String, String> data = gson.fromJson(body, new TypeToken<Map<String, String>>(){}.getType());
 
             String id = data.get("id");
             String pw = data.get("pw");
-            Json store = new Json("Back/.user_data/user.json");
+            UsersDB usersDB = new UsersDB();
 
 
-            if (!store.getUser(id)) {
+            if (!usersDB.isUser(id)) {
                 exchange.sendResponseHeaders(999, -1);
                 exchange.close();
                 return;
             }
-            String [] info = store.getUserInfo(id);
-            // String pw_ = store.getUserPassword(id);
-            // String nName = store.getUserNName(id);
-
-            if (info[0].equals(pw)) {
-                String nName = info[1];
+            
+            String DB_pw = usersDB.getUserPassword(id);
+            if (DB_pw.equals(pw)) {
+                String nName = usersDB.getUserNName(id);
                 byte[] payload = nName.getBytes(StandardCharsets.UTF_8);
                 exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
                 exchange.sendResponseHeaders(1, payload.length);
@@ -97,10 +87,9 @@ class LoginHandler implements HttpHandler {
         } catch (Exception e) {
             System.out.println("InfoServerHost.LoginHandler Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
     }
 }
 
@@ -111,8 +100,8 @@ class GetNNameHandler implements HttpHandler {
             InputStream in = exchange.getRequestBody();
             String id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
-            Json store = new Json("Back/.user_data/user.json");
-            String nName = store.getUserNName(id);
+            UsersDB usersDB = new UsersDB();
+            String nName = usersDB.getUserNName(id);
 
             if (nName != null) {
                 byte[] payload = nName.getBytes(StandardCharsets.UTF_8);
@@ -128,24 +117,21 @@ class GetNNameHandler implements HttpHandler {
         } catch (Exception e) {
             System.out.println("InfoServerHost.GetNNameHandler Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
     }
 }
 
-class ChatListHandler implements HttpHandler {
+class GetChatListHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange){
         try{
             InputStream in = exchange.getRequestBody();
-            String id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-            // System.out.println(id);
+            String user_id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
-            Json store = new Json("Back/.user_data/chat.json");
-
-            String chat_list = store.getChatList(id);
+            ChatDB chatDB = new ChatDB();
+            String chat_list = chatDB.getChatList(user_id);
             // System.out.println(info);
             byte[] payload = chat_list.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
@@ -155,25 +141,24 @@ class ChatListHandler implements HttpHandler {
             }
 
         } catch (Exception e) {
-            System.out.println("InfoServerHost.ChatListHandler Err!");
+            System.out.println("InfoServerHost.GetChatListHandler Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
     }
 }
 
-class FriendListHandler implements HttpHandler {
+class GetFriendListHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange){
         try{
             InputStream in = exchange.getRequestBody();
-            String id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            String user_id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             
-            Json store = new Json("Back/.user_data/user.json");
+            FriendDB friendDB = new FriendDB();
+            String friend_list = friendDB.getFriend(user_id);
 
-            String friend_list = store.getFriend(id);
             byte[] payload = friend_list.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
             exchange.sendResponseHeaders(1, payload.length);
@@ -182,26 +167,25 @@ class FriendListHandler implements HttpHandler {
             }
 
         } catch (Exception e) {
-            System.out.println("InfoServerHost.FriendListHandler Err!");
+            System.out.println("InfoServerHost.GetFriendListHandler Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
     }
 }
 
-class FriendStatusHandler implements HttpHandler {
+class GetFriendRequestHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange){
         try{
             InputStream in = exchange.getRequestBody();
             String id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
             
-            Json store = new Json("Back/.user_data/user.json");
+            FriendDB friendDB = new FriendDB();
+            String friend_request = friendDB.getFriendRequest(id);
 
-            String friend_status = store.getFriendStatus(id);
-            byte[] payload = friend_status.getBytes(StandardCharsets.UTF_8);
+            byte[] payload = friend_request.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
             exchange.sendResponseHeaders(1, payload.length);
             try (OutputStream os = exchange.getResponseBody()) {
@@ -209,42 +193,11 @@ class FriendStatusHandler implements HttpHandler {
             }
 
         } catch (Exception e) {
-            System.out.println("InfoServerHost.FriendStatusHandler Err!");
+            System.out.println("InfoServerHost.GetFriendRequestHandler Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
-    }
-}
-
-class FriendAddHandler implements HttpHandler {
-    @Override
-    public void handle(HttpExchange exchange) {
-        try {
-            InputStream in = exchange.getRequestBody();
-            String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
-
-            Gson gson = new Gson();
-            Map<String, String> data = gson.fromJson(body, Map.class);
-
-            String sender = data.get("sender");
-            String receiver = data.get("receiver");
-            System.out.println("FriendAdd Request from " + sender + " to " + receiver);
-            boolean flag;
-            if (data.get("flag").equals("true")) flag = true;
-            else flag = false;
-
-            Json store = new Json("Back/.user_data/user.json");
-            store.friendAdd(sender, receiver, flag);
-            exchange.sendResponseHeaders(1,-1);
-        } catch (Exception e) {
-            System.out.println("InfoServerHost.FriendAddHandler Err!");
-            e.printStackTrace();
-        }
-
-        exchange.close();
-        return;
     }
 }
 
@@ -256,36 +209,54 @@ class FriendRequestHandler implements HttpHandler {
             String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
             Gson gson = new Gson();
-            Map<String, String> data = gson.fromJson(body, Map.class);
+            Map<String, String> data = gson.fromJson(body, new TypeToken<Map<String, String>>(){}.getType());
 
-            String my_id = data.get("my_id");
-            String your_id = data.get("your_id");
-            boolean flag;
-            if (data.get("flag").equals("true")) flag = true;
-            else flag = false;
+            String from_id = data.get("from_id");
+            String to_id = data.get("to_id");
+            
+            FriendDB friendDB = new FriendDB();
+            if (data.get("flag").equals("true")) friendDB.addFriendRequest(from_id, to_id);
+            else friendDB.deleteFriendRequest(from_id, to_id);
 
-            Json store = new Json("Back/.user_data/user.json");
-            store.friendRequest(my_id, your_id, flag);
             exchange.sendResponseHeaders(1,-1);
         } catch (Exception e) {
             System.out.println("InfoServerHost.FriendRequestHandler Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
+    }
+}
 
-        exchange.close();
-        return;
+class FriendRequestResponseHandler implements HttpHandler {
+    @Override
+    public void handle(HttpExchange exchange) {
+        try {
+            InputStream in = exchange.getRequestBody();
+            String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+
+            Gson gson = new Gson();
+            Map<String, String> data = gson.fromJson(body, new TypeToken<Map<String, String>>(){}.getType());
+
+            String my_id = data.get("my_id");
+            String your_id = data.get("your_id");
+            
+            FriendDB friendDB = new FriendDB();
+            if (data.get("flag").equals("true")) friendDB.addFriendRequest(your_id, my_id);
+            else friendDB.deleteFriendRequest(your_id, my_id);
+
+            exchange.sendResponseHeaders(1,-1);
+        } catch (Exception e) {
+            System.out.println("InfoServerHost.FriendRequestResponseHandler Err!");
+            e.printStackTrace();
+        } finally {
+            exchange.close();
+        }
     }
 }
 
 public class InfoServerHost {
     private static final int port = 8003;
-
-    private static String getLoclaIp() throws IOException {
-        try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {
-            socket.connect(java.net.InetAddress.getByName("8.8.8.8"), 10002);
-            return socket.getLocalAddress().getHostAddress();
-        }
-    }
     
     public InfoServerHost() throws IOException{
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
@@ -301,18 +272,16 @@ public class InfoServerHost {
         });
         server.createContext("/Signup", new SignupHandler());
         server.createContext("/Login", new LoginHandler());
-        server.createContext("/ChatList", new ChatListHandler());
         server.createContext("/GetNName", new GetNNameHandler());
-        server.createContext("/FriendList", new FriendListHandler());
-        server.createContext("/FriendStatus", new FriendStatusHandler());
-        server.createContext("/FriendAdd", new FriendAddHandler());
+        server.createContext("/GetChatList", new GetChatListHandler());
+        server.createContext("/GetFriendList", new GetFriendListHandler());
+        server.createContext("/GetFriendRequest", new GetFriendRequestHandler());
         server.createContext("/FriendRequest", new FriendRequestHandler());
+        server.createContext("/FriendRequestResponse", new FriendRequestResponseHandler());
         
-
         server.setExecutor(null);
         server.start();
 
-        String host_ip = getLoclaIp();
-        System.out.printf("Info server starting on %s : %d\n", host_ip, port);
+        System.out.printf("Info server starting on htaeky.iptime.org : %d\n", port);
     }
 }

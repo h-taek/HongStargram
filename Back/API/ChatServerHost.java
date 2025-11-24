@@ -7,26 +7,19 @@ import java.util.*;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
-import Back.Data.Json;
+import Back.Data.ChatDB;
 
 public class ChatServerHost {
     static final int port = 8004;
     private static final Map<String, PrintWriter> CLIENTS = 
                 Collections.synchronizedMap(new HashMap<>()); // 모든 클라이언트의 출력 스트림을 보관 (동기화된 Set)
 
-    // 현재 서버의 로컬 IP 확인
-    private static String getLocalIp() throws IOException {
-        try (DatagramSocket socket = new DatagramSocket()) {
-            socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
-            return socket.getLocalAddress().getHostAddress();
-        }
-    }
 
     // 메세지 전송
-    private static void sendMessage(String sender, List<String> receiver, String chat_id, 
-                String msg, Json chat) {
+    private static void sendMessage(String sender, List<String> receiver, int chat_id, 
+                String msg, ChatDB chatDB) {
         try {
-            chat.addChat(chat_id, sender, msg);
+            chatDB.addChat(chat_id, sender, msg);
             
             for (String r : receiver) {
                 PrintWriter target = CLIENTS.get(r);
@@ -46,7 +39,7 @@ public class ChatServerHost {
         private BufferedReader in;
         private PrintWriter out;
 
-        Json chat;
+        ChatDB chatDB;
 
         ClientHandler(Socket socket) {
             this.socket = socket;
@@ -61,22 +54,22 @@ public class ChatServerHost {
                 // 첫 입력은 id
                 String body = in.readLine();
                 Gson gson = new Gson();
-                Map<String, Object> temp = gson.fromJson(body, new TypeToken<Map<String, Object>>(){}.getType());
+                Map<String, String> chat_json = gson.fromJson(body, new TypeToken<Map<String, String>>(){}.getType());
 
-                String sender = temp.get("sender").toString();
-                List<String> receiver_list = (ArrayList<String>) temp.get("receiver");
-                List<String> id = new ArrayList<>(receiver_list);
-                id.add(sender);
-                id.sort(null);
-                String chat_id = String.join("|", id);
+                int chat_id = Integer.parseInt(chat_json.get("chat_id").toString());
+                String sender = chat_json.get("sender").toString();
+                String receivers = chat_json.get("receiver").toString();
+                List<String> receiver_list = gson.fromJson(receivers, new TypeToken<List<String>>(){}.getType());
 
                 // 접속 즉시 출력 스트림을 등록
                 CLIENTS.put(sender ,out);
+                chatDB = new ChatDB();
 
-                chat = new Json("Back/.user_data/chat.json");
+                // 채팅방 생성
+                if (chat_id == -1) {chat_id = chatDB.addNewChatRoom(receivers);}
 
                 // 접속하면 서버의 기록을 전송
-                String chat_log = chat.getChat(chat_id);
+                String chat_log = chatDB.getChat(chat_id);
                 out.println(chat_log);
                 
                 InetSocketAddress isa = (InetSocketAddress) socket.getRemoteSocketAddress();
@@ -85,7 +78,7 @@ public class ChatServerHost {
                 //메세지를 입력받고 전송
                 String line;
                 while ((line = in.readLine()) != null) {
-                    sendMessage(sender, receiver_list, chat_id, line, chat);
+                    sendMessage(sender, receiver_list, chat_id, line, chatDB);
                 }
             } catch (IOException e) { 
             } finally {
@@ -101,10 +94,7 @@ public class ChatServerHost {
     }
 
     public ChatServerHost() {            
-        try{
-            String ip = getLocalIp();
-            System.out.printf("Chat server starting on %s : %d%n", ip, port);
-        } catch (IOException ignore) {}
+        System.out.printf("Chat server starting on htaeky.iptime.org : %d\n", port);
 
         try (ServerSocket serverSocket = new ServerSocket(port)) {
             while (true) {
@@ -113,6 +103,7 @@ public class ChatServerHost {
             }
         } catch (IOException e) {
             e.printStackTrace();
+            System.out.println("ChatServerHost Err!");
         }
     }
 }

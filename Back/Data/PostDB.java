@@ -239,7 +239,7 @@ public class PostDB {
             psmt_add.executeUpdate();
 
             // Add readable post to friends
-            String friends = new FriendDB().getFreind(postMap.get("user_id"));
+            String friends = new FriendDB().getFriend(postMap.get("user_id"));
             List<String> friendList = gson.fromJson(friends, new TypeToken<List<String>>(){}.getType());
             for (String friend_id : friendList) {
                 addReadablePost(friend_id, post_id);
@@ -272,7 +272,7 @@ public class PostDB {
             psmt_delete.executeUpdate();
 
             // Delete readable posts
-            String friends = new FriendDB().getFreind(user_id);
+            String friends = new FriendDB().getFriend(user_id);
             List<String> friendList = new Gson().fromJson(friends, new TypeToken<List<String>>(){}.getType());
             for (String friend_id : friendList) {
                 deleteReadablePost(friend_id, post_id);

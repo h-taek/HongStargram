@@ -34,6 +34,7 @@ public class ChatServerClient {
 
             Gson gson = new Gson();
 
+            // chat_id 같이 전송, 없으면 new_chat 태그로 전송
             String json = "{\"sender\":\"" + sender + "\",\"receiver\": " + gson.toJson(receiver) + "}";
             // id 전송
             out.println(json);

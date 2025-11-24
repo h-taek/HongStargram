@@ -1,25 +1,25 @@
 package Back.API;
 
-import com.sun.net.httpserver.*;
-
-import Back.Data.Json;
-
 import java.util.*;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.net.InetSocketAddress;
+import com.sun.net.httpserver.*;
+
+import com.google.gson.reflect.TypeToken;
 import com.google.gson.*;
 
-import java.nio.charset.StandardCharsets;
+import Back.Data.PostDB;
 
 class GetReadablePostHandler implements HttpHandler {
     @Override
     public void handle(HttpExchange exchange){
         try{
             InputStream in = exchange.getRequestBody();
-            String id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            String user_id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
-            Json store = new Json("Back/.user_data/user.json");
-            String readable_post = store.getReadablePostList(id);
+            PostDB postDB = new PostDB();
+            String readable_post = postDB.getReadablePostList(user_id);
             
             byte[] payload = readable_post.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
@@ -30,10 +30,9 @@ class GetReadablePostHandler implements HttpHandler {
         } catch (Exception e) {
             System.out.println("PostServerHost.GetReadablePostHandler Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
     }
 }
 
@@ -42,10 +41,10 @@ class GetPostHandler implements HttpHandler {
     public void handle(HttpExchange exchange){
         try{
             InputStream in = exchange.getRequestBody();
-            String post_id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            int post_id = Integer.parseInt(new String(in.readAllBytes(), StandardCharsets.UTF_8));
             
-            Json store = new Json("Back/.user_data/post.json");
-            String post = store.getPost(post_id);
+            PostDB postDB = new PostDB();
+            String post = postDB.getPost(post_id);
 
             byte[] payload = post.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "application/json; charset=UTF-8");
@@ -57,10 +56,9 @@ class GetPostHandler implements HttpHandler {
         } catch (Exception e) {
             System.out.println("PostServerHost.GetPostHandler Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
     }
 }
 
@@ -72,22 +70,21 @@ class AddCommentHandler implements HttpHandler {
             String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
             Gson gson = new Gson();
-            Map<String, String> data = gson.fromJson(body, Map.class);
+            Map<String, String> data = gson.fromJson(body, new TypeToken<Map<String, String>>(){}.getType());
 
-            String post_id = data.get("post_id");
-            String id = data.get("id");
+            int post_id = Integer.parseInt(data.get("post_id"));
+            String user_id = data.get("user_id");
             String text = data.get("text");
-            Json store = new Json("Back/.user_data/post.json");
+            PostDB postDB = new PostDB();
 
-            store.addComment(post_id, id, text);;
+            postDB.addComment(post_id, user_id, text);
             exchange.sendResponseHeaders(1, -1);
         } catch (Exception e) {
             System.out.println("PostServerHost.AddCommentHandler Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
     }
 }
 
@@ -99,21 +96,19 @@ class DeleteCommentHandler implements HttpHandler {
             String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
             Gson gson = new Gson();
-            Map<String, String> data = gson.fromJson(body, Map.class);
+            Map<String, String> data = gson.fromJson(body, new TypeToken<Map<String, String>>(){}.getType());
 
-            String post_id = data.get("post_id");
-            String comment_id = data.get("comment_id");
-            Json store = new Json("Back/.user_data/post.json");
+            int comment_id = Integer.parseInt(data.get("comment_id"));
 
-            store.deleteComment(post_id, comment_id);
+            PostDB postDB = new PostDB();
+            postDB.deleteComment(comment_id);
             exchange.sendResponseHeaders(1, -1);
         } catch (Exception e) {
-            System.out.println("PostServerHost.AddCommentHandler Err!");
+            System.out.println("PostServerHost.DeleteCommentHandler Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
     }
 }
 
@@ -125,22 +120,24 @@ class LikeHandler implements HttpHandler {
             String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
             Gson gson = new Gson();
-            Map<String, String> data = gson.fromJson(body, Map.class);
+            Map<String, String> data = gson.fromJson(body, new TypeToken<Map<String, String>>(){}.getType());
 
-            String post_id = data.get("post_id");
-            String id = data.get("id");
-            boolean flag = data.get("flag").equals("true") ? true : false;
-            Json store = new Json("Back/.user_data/post.json");
-
-            store.like(post_id, id, flag);
+            int post_id = Integer.parseInt(data.get("post_id"));
+            String user_id = data.get("user_id");
+            
+            PostDB postDB = new PostDB();
+            if (data.get("flag").equals("true")) {
+                postDB.addLike(post_id, user_id);
+            } else {
+                postDB.deleteLike(post_id, user_id);
+            }
             exchange.sendResponseHeaders(1, -1);
         } catch (Exception e) {
-            System.out.println("PostServerHost.AddCommentHandler Err!");
+            System.out.println("PostServerHost.LikeHandler Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
     }
 }
 
@@ -151,17 +148,15 @@ class AddPost implements HttpHandler {
             InputStream in = exchange.getRequestBody();
             String post = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
-            Json store = new Json("Back/.user_data/post.json");
-
-            store.addPost(post);
+            PostDB postDB = new PostDB();
+            postDB.addPost(post);
             exchange.sendResponseHeaders(1, -1);
         } catch (Exception e) {
             System.out.println("PostServerHost.AddPost Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
     }
 }
 
@@ -170,32 +165,23 @@ class DeletePost implements HttpHandler {
     public void handle(HttpExchange exchange){
         try{
             InputStream in = exchange.getRequestBody();
-            String post_id = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+            int post_id = Integer.parseInt(new String(in.readAllBytes(), StandardCharsets.UTF_8));
 
-            Json store = new Json("Back/.user_data/post.json");
-
-            store.deletePost(post_id);
+            PostDB postDB = new PostDB();
+            postDB.deletePost(post_id);
             exchange.sendResponseHeaders(1, -1);
         } catch (Exception e) {
             System.out.println("PostServerHost.DeletePost Err!");
             e.printStackTrace();
+        } finally {
+            exchange.close();
         }
-        
-        exchange.close();
-        return;
     }
 }
 
 
 public class PostServerHost {
     private static final int port = 8005;
-
-    private static String getLoclaIp() throws IOException {
-        try (java.net.DatagramSocket socket = new java.net.DatagramSocket()) {
-            socket.connect(java.net.InetAddress.getByName("8.8.8.8"), 10002);
-            return socket.getLocalAddress().getHostAddress();
-        }
-    }
     
     public PostServerHost() throws IOException{
         HttpServer server = HttpServer.create(new InetSocketAddress("0.0.0.0", port), 0);
@@ -221,7 +207,6 @@ public class PostServerHost {
         server.setExecutor(null);
         server.start();
 
-        String host_ip = getLoclaIp();
-        System.out.printf("Post server starting on %s : %d\n", host_ip, port);
+        System.out.printf("Post server starting on htaeky.iptime.org : %d\n", port);
     }
 }

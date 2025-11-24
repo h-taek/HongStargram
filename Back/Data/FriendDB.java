@@ -7,8 +7,8 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class FriendDB {
-    //getFreind
-    public String getFreind(String id) {
+    //getFriend
+    public String getFriend(String id) {
         String sql = "SELECT * FFROM FRIENDS WHERE USER_ID = ?";
 
         try (Connection conn = DBManager.getConnection();
@@ -28,14 +28,14 @@ public class FriendDB {
 
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("getFreind Error");
+            System.out.println("getFriend Error");
 
             return null;
         }
     }
 
-    //addFreindRequest
-    public void addFreindRequest(String from_id, String to_id) {
+    //addFriendRequest
+    public void addFriendRequest(String from_id, String to_id) {
         String sql = "INSERT INTO FRIEND_REQUESTS (FROM_USER_ID, TO_USER_ID) VALUES (?, ?)";
 
         try (Connection conn = DBManager.getConnection();
@@ -47,12 +47,29 @@ public class FriendDB {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("addFreindRequest Error");
+            System.out.println("addFriendRequest Error");
         }
     }
 
-    //getFreiendRequest
-    public String getFreindRequest(String id) {
+    //deleteFriendRequest
+    public void deleteFriendRequest(String from_id, String to_id) {
+        String sql = "DELETE FROM FRIEND_REQUESTS WHERE FROM_USER_ID = ? AND TO_USER_ID = ?";
+
+        try (Connection conn = DBManager.getConnection();
+            PreparedStatement pstmt = conn.prepareStatement(sql)){
+            
+            pstmt.setString(1, from_id);
+            pstmt.setString(2, to_id);
+
+            pstmt.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("deleteFriendRequest Error");
+        }
+    }
+
+    //getFriendRequest
+    public String getFriendRequest(String id) {
         String sql_receive = "SELECT FROM_USER_ID FROM FRIEND_REQUESTS WHERE FROM_USER_ID = ?";
         String sql_sent = "SELECT TO_USER_ID FROM FRIEND_REQUESTS WHERE TO_USER_ID = ?";
 
@@ -84,14 +101,14 @@ public class FriendDB {
             return gson.toJson(requests);
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("getFreindRequest Error");
+            System.out.println("getFriendRequest Error");
 
             return null;
         }
     }
 
-    //acceptFreindRequest
-    public void acceptFreindRequest(String from_id, String to_id) {
+    //acceptFriendRequest
+    public void acceptFriendRequest(String from_id, String to_id) {
         String sql_delete = "DELETE FROM FRIEND_REQUESTS WHERE FROM_USER_ID = ? AND TO_USER_ID = ?";
         String sql_insert = "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) VALUES (?, ?)";
 
@@ -113,7 +130,6 @@ public class FriendDB {
             pstmt_insert.setString(2, from_id);
             pstmt_insert.executeUpdate();
 
-            
 
             // Add readable posts 
             // from_id
@@ -152,12 +168,12 @@ public class FriendDB {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("acceptFreindRequest Error");
+            System.out.println("acceptFriendRequest Error");
         }
     }
 
-    //rejectFreindRequest
-    public void rejectFreindRequest(String from_id, String to_id) {
+    //rejectFriendRequest
+    public void rejectFriendRequest(String from_id, String to_id) {
         String sql = "DELETE FROM FRIEND_REQUESTS WHERE FROM_USER_ID = ? AND TO_USER_ID = ?";
 
         try (Connection conn = DBManager.getConnection();
@@ -169,7 +185,7 @@ public class FriendDB {
             pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("rejectFreindRequest Error");
+            System.out.println("rejectFriendRequest Error");
         }
     }
 }
