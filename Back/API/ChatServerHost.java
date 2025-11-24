@@ -7,7 +7,7 @@ import java.util.*;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 
-import Back.Data.ChatDB;
+import Back.DB.ChatDB;
 
 public class ChatServerHost {
     static final int port = 8004;

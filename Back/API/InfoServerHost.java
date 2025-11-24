@@ -6,12 +6,12 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import com.sun.net.httpserver.*;
 
+import Back.DB.ChatDB;
+import Back.DB.FriendDB;
+import Back.DB.UsersDB;
+
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-
-import Back.Data.UsersDB;
-import Back.Data.ChatDB;
-import Back.Data.FriendDB;
 
 class SignupHandler implements HttpHandler {
     @Override

@@ -6,10 +6,10 @@ import java.nio.charset.StandardCharsets;
 import java.net.InetSocketAddress;
 import com.sun.net.httpserver.*;
 
+import Back.DB.PostDB;
+
 import com.google.gson.reflect.TypeToken;
 import com.google.gson.*;
-
-import Back.Data.PostDB;
 
 class GetReadablePostHandler implements HttpHandler {
     @Override

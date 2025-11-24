@@ -1,4 +1,4 @@
-package Back.Data;
+package Back.DB;
 
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
