@@ -41,8 +41,8 @@ public class App implements Navigator {
     }
 
     @Override
-    public void openUserMessage(String sender, String se_nName, Map<String, String> receiver) {
-        SwingUtilities.invokeLater(() -> show(new UserMessageView(this, sender, se_nName, receiver)));
+    public void openUserMessage(int chat_id, String sender, String se_nName, Map<String, String> receiver) {
+        SwingUtilities.invokeLater(() -> show(new UserMessageView(this, chat_id, sender, se_nName, receiver)));
     }
 
     @Override

@@ -36,8 +36,8 @@ public class InfoServerClient {
             return code;    
         }
         catch (IOException e) {
-            System.out.println("ServerClient.SignupRequest Err!");
             e.printStackTrace();
+            System.out.println("ServerClient.SignupRequest Err!");
             return -1;
         }
         
@@ -80,8 +80,8 @@ public class InfoServerClient {
             return nName;    
         }
         catch (Exception e) {
-            System.out.println("ServerClient.LoginRequest Err!");
             e.printStackTrace();
+            System.out.println("ServerClient.LoginRequest Err!");
             return null;
         }
     }
@@ -122,14 +122,15 @@ public class InfoServerClient {
             return nName;    
         }
         catch (Exception e) {
+            e.printStackTrace();
             System.out.println("InfoServerClient.GetNNameRequest Err!");
             return null;
         }
     }    
 
-    public String [] ChatListRequest(String id) {
+    public Map<Integer, List<String>> GetChatListRequest(String id) {
         try{
-            String urlStr = "http://" + hostIp + ":" + port + "/ChatList";
+            String urlStr = "http://" + hostIp + ":" + port + "/GetChatList";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
             
@@ -148,23 +149,24 @@ public class InfoServerClient {
             while ((line = br.readLine()) != null) {
                 response.append(line);
             }
-            // System.out.println(response);
+
             Gson gson = new Gson();
-            String[] recivers = gson.fromJson(response.toString(), String[].class);
+            Map<Integer, List<String>> chat_list = gson.fromJson(response.toString(), new TypeToken<Map<Integer, List<String>>>(){}.getType());
 
             br.close();
             connect.disconnect();
-            return recivers;    
+            return chat_list;    
         }
         catch (Exception e) {
-            System.out.println("InfoServerClient.ChatListRequest Err!");
+            e.printStackTrace();
+            System.out.println("InfoServerClient.GetChatListRequest Err!");
             return null;
         }
     }
         
-    public String [] FriendListRequest (String id) {
+    public String [] GetFriendListRequest (String id) {
         try{
-            String urlStr = "http://" + hostIp + ":" + port + "/FriendList";
+            String urlStr = "http://" + hostIp + ":" + port + "/GetFriendList";
             
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
@@ -193,14 +195,15 @@ public class InfoServerClient {
             return friend_list;    
         }
         catch (Exception e) {
-            System.out.println("InfoServerClient.FriendListRequest Err!");
+            e.printStackTrace();
+            System.out.println("InfoServerClient.GetFriendListRequest Err!");
             return null;
         }
     }
 
-    public Map<String, String []> FriendStatusRequest (String id) {
+    public Map<String, String []> GetFriendRequestRequest (String id) {
         try{
-            String urlStr = "http://" + hostIp + ":" + port + "/FriendStatus";
+            String urlStr = "http://" + hostIp + ":" + port + "/GetFriendRequest";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
             
@@ -220,23 +223,23 @@ public class InfoServerClient {
                 response.append(line);
             }
             Gson gson = new Gson();
-            Map<String, String []> friend_status = gson.fromJson(response.toString(), new TypeToken<Map<String, String []>>(){}.getType());
+            Map<String, String []> friend_request_response = gson.fromJson(response.toString(), new TypeToken<Map<String, String []>>(){}.getType());
 
 
             br.close();
             connect.disconnect();
-            return friend_status;    
+            return friend_request_response;    
         }
         catch (Exception e) {
-            System.out.println("InfoServerClient.FriendStatusRequest Err!");
             e.printStackTrace();
+            System.out.println("InfoServerClient.GetFriendRequestRequest Err!");
             return null;
         }
     }
 
-    public void FriendAddRequest(String sender, String receiver, boolean flag) {
+    public void FriendRequestRequest(String from_id, String to_id, boolean flag) {
         try{
-            String urlStr = "http://" + hostIp + ":" + port + "/FriendAdd";
+            String urlStr = "http://" + hostIp + ":" + port + "/FriendRequest";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
 
@@ -245,11 +248,9 @@ public class InfoServerClient {
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-            String flag_str;
-            if (flag) flag_str = "true";
-            else flag_str = "false";
+            String flag_str = (flag) ? "true" : "false";
 
-            String json = "{\"sender\":\""+ sender + "\", \"receiver\":\"" + receiver + "\", \"flag\":\"" + flag_str + "\"}";
+            String json = "{\"from_id\":\""+ from_id + "\", \"to_id\":\"" + to_id + "\", \"flag\":\"" + flag_str + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
@@ -259,15 +260,15 @@ public class InfoServerClient {
             return;    
         }
         catch (Exception e) {
-            System.out.println("ServerClient.FriendAddRequest Err!");
+            System.out.println("InfoServerClient.FriendRequestRequest Err!");
             e.printStackTrace();
             return;
         }
     }
 
-    public void FriendRequestRequest(String my_id, String your_id, boolean flag) {
+    public void FriendRequestResponseRequest(String my_id, String your_id, boolean flag) {
         try{
-            String urlStr = "http://" + hostIp + ":" + port + "/FriendRequest";
+            String urlStr = "http://" + hostIp + ":" + port + "/FriendRequestResponse";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
             
@@ -276,9 +277,7 @@ public class InfoServerClient {
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-            String flag_str;
-            if (flag) flag_str = "true";
-            else flag_str = "false";
+            String flag_str = flag ? "true" : "false";
 
             String json = "{\"my_id\":\""+ my_id + "\", \"your_id\":\"" + your_id + "\", \"flag\":\"" + flag_str + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
@@ -290,7 +289,8 @@ public class InfoServerClient {
             return;    
         }
         catch (Exception e) {
-            System.out.println("ServerClient.FriendRequestRequest Err!");
+            System.out.println("ServerClient.FriendRequestResponseRequest Err!");
+            e.printStackTrace();
             return;
         }
     }
@@ -318,8 +318,8 @@ public class InfoServerClient {
             br.close();
             connect.disconnect();
         } catch (IOException e) {
-            System.out.println("InfoServerClient ConErr!");
             e.printStackTrace();
+            System.out.println("InfoServerClient ConErr!");
         }
     }
 }

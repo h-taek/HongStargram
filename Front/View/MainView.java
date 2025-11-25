@@ -2,9 +2,6 @@ package Front.View;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
-
-import com.google.gson.JsonObject;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -24,18 +21,17 @@ class PostDialogBtnListener extends JPanel implements ActionListener {
     RoundButton btn;
     JFileChooser chooser;
     JTextArea area;
-    
+
     public PostDialogBtnListener() {
         setPreferredSize(new Dimension(500, 400));
-        setLayout(new BorderLayout(0,10));
+        setLayout(new BorderLayout(0, 10));
         setBackground(Color.decode("#141414"));
-        setBorder(BorderFactory.createEmptyBorder(15,20,10,20));
-
+        setBorder(BorderFactory.createEmptyBorder(15, 20, 10, 20));
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
         panel.setBackground(Color.decode("#141414"));
-        
+
         JLabel label = new JLabel("파일 경로...");
         label.setForeground(Color.white);
         label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
@@ -58,7 +54,6 @@ class PostDialogBtnListener extends JPanel implements ActionListener {
 
         add(panel, BorderLayout.NORTH);
 
-
         area = new JTextArea();
         area.setLineWrap(true);
         area.setBackground(Color.DARK_GRAY);
@@ -69,7 +64,6 @@ class PostDialogBtnListener extends JPanel implements ActionListener {
         area.setOpaque(true);
 
         add(area, BorderLayout.CENTER);
-
 
         btn = new RoundButton("확인", 10);
         btn.setBackground(Color.decode("#1E90FF"));
@@ -100,11 +94,10 @@ class Post extends JPanel {
     private class ImagePanel extends JPanel {
         public ImagePanel(String encoded_img) {
             byte[] imageBytes = Base64.getDecoder().decode(encoded_img);
-            
+
             try (InputStream in = new ByteArrayInputStream(imageBytes)) {
                 image = ImageIO.read(in);
-            }
-            catch (IOException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
                 return;
             }
@@ -118,25 +111,24 @@ class Post extends JPanel {
 
             Graphics2D g2d = (Graphics2D) g;
             g2d.setRenderingHint(RenderingHints.KEY_INTERPOLATION,
-                                RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+                    RenderingHints.VALUE_INTERPOLATION_BILINEAR);
 
             int p = 400;
             int iw = image.getWidth();
             int ih = image.getHeight();
 
-            if (iw > ih){
-                int y = (int)((ih - iw) / 2);
-                g2d.drawImage(image, 
-                            0, 0, p, p, 
-                            0, y, iw, ih - y, 
-                            null);
-            }
-            else {
-                int x = (int)((iw - ih) / 2);
-                g2d.drawImage(image, 
-                            0, 0, p, p, 
-                            x, 0, iw - x, ih, 
-                            null);
+            if (iw > ih) {
+                int y = (int) ((ih - iw) / 2);
+                g2d.drawImage(image,
+                        0, 0, p, p,
+                        0, y, iw, ih - y,
+                        null);
+            } else {
+                int x = (int) ((iw - ih) / 2);
+                g2d.drawImage(image,
+                        0, 0, p, p,
+                        x, 0, iw - x, ih,
+                        null);
             }
         }
     }
@@ -149,12 +141,10 @@ class Post extends JPanel {
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
-
         JPanel topPanel = new JPanel();
         topPanel.setOpaque(false);
         topPanel.setLayout(new BorderLayout());
-        topPanel.setBorder(BorderFactory.createEmptyBorder(5, 5,10,0));
-
+        topPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 0));
 
         String user_id = post.get("user_id").toString();
         JLabel label = new JLabel("@ " + user_id);
@@ -165,10 +155,10 @@ class Post extends JPanel {
 
         String post_id = post.get("post_id").toString();
         if (user_id.equals(id)) {
-            ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/Front/.src/trashbin_icon.png", 20, 20, 0.5f));
+            ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/trashbin_icon.png", 20, 20, 0.5f));
             JButton btn = new JButton(icon);
             btn.setOpaque(false);
-            btn.setBorderPainted(false);  
+            btn.setBorderPainted(false);
             btn.setFocusPainted(false);
             btn.setOpaque(false);
 
@@ -177,13 +167,12 @@ class Post extends JPanel {
                 server.DeletePostRequest(post_id);
                 parent.remove(this);
                 parent.revalidate();
-                parent.repaint();  
+                parent.repaint();
             });
 
             topPanel.add(btn, BorderLayout.EAST);
         }
         add(topPanel, BorderLayout.NORTH);
-
 
         // -----------------------------------------------------
         JPanel panel = new JPanel();
@@ -191,11 +180,10 @@ class Post extends JPanel {
         panel.setBackground(Color.decode("#141414"));
 
         ImagePanel imagePanel = new ImagePanel(post.get("image").toString());
-        
-        panel.add(imagePanel);
-        
-        add(panel, BorderLayout.CENTER);
 
+        panel.add(imagePanel);
+
+        add(panel, BorderLayout.CENTER);
 
         // -----------------------------------------------------
         JPanel bottomPanel = new JPanel();
@@ -208,12 +196,15 @@ class Post extends JPanel {
 
         List<String> likes = (List<String>) post.get("likes");
         ImageIcon like_icon;
-        if (likes.contains(id)){like_icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_icon.png", 25, 25, 1));}
-        else{like_icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_line_icon.png", 25, 25, 1));}        
-        
+        if (likes.contains(id)) {
+            like_icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_icon.png", 25, 25, 1));
+        } else {
+            like_icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_line_icon.png", 25, 25, 1));
+        }
+
         JButton like_btn = new JButton(like_icon);
         like_btn.setOpaque(false);
-        like_btn.setBorderPainted(false);  
+        like_btn.setBorderPainted(false);
         like_btn.setFocusPainted(false);
         like_btn.setOpaque(false);
         JLabel like_count_label = new JLabel(likes.size() + "   ");
@@ -228,8 +219,7 @@ class Post extends JPanel {
 
                 like_count_label.setText((likes.size()) + "   ");
                 server.LikeRequest(post_id, id, "false");
-            }
-            else {
+            } else {
                 likes.add(id);
                 ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_icon.png", 25, 25, 1));
                 like_btn.setIcon(icon);
@@ -238,23 +228,23 @@ class Post extends JPanel {
                 server.LikeRequest(post_id, id, "true");
             }
         });
-        
+
         bottom_btn_panel.add(like_btn);
         bottom_btn_panel.add(like_count_label);
 
         JButton comment_btn = new JButton(new ImageIcon(Resize.resizeImage("Front/.src/comment_icon.png", 25, 25, 1)));
         comment_btn.setOpaque(false);
-        comment_btn.setBorderPainted(false);  
+        comment_btn.setBorderPainted(false);
         comment_btn.setFocusPainted(false);
         comment_btn.setOpaque(false);
-        
+
         List<Map<String, String>> comments = (List<Map<String, String>>) post.get("comments");
-        JLabel comment_count_label = new JLabel(comments.size()+"");
+        JLabel comment_count_label = new JLabel(comments.size() + "");
         comment_count_label.setFont(new Font("Arial", Font.BOLD, 18));
         comment_count_label.setForeground(Color.white);
 
         comment_btn.addActionListener(e -> nav.openComments(comments, id, nName, post.get("post_id").toString()));
-        
+
         bottom_btn_panel.add(comment_btn);
         bottom_btn_panel.add(comment_count_label);
 
@@ -272,12 +262,13 @@ class Post extends JPanel {
 
         add(bottomPanel, BorderLayout.SOUTH);
     }
-    
+
 }
 
 class MainTopPanel extends JPanel {
     Navigator nav;
-    String id; String nName;
+    String id;
+    String nName;
     MainCenterPanel center;
 
     int s = 30;
@@ -287,7 +278,7 @@ class MainTopPanel extends JPanel {
         this.id = id;
         this.nName = nName;
         this.center = center;
-        
+
         setBackground(Color.decode("#141414"));
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.DARK_GRAY));
@@ -297,12 +288,12 @@ class MainTopPanel extends JPanel {
         topLabel.setForeground(Color.white);
 
         add(topLabel, BorderLayout.WEST);
-        
+
         JPanel btnPanel = new JPanel();
         btnPanel.setOpaque(false);
         btnPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
 
-        ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/paper_airplane.png", s+5, s+5, 1));
+        ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/paper_airplane.png", s + 5, s + 5, 1));
         JButton messegeBtn = new JButton(icon);
         messegeBtn.setBackground(Color.decode("#141414"));
         messegeBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -311,9 +302,10 @@ class MainTopPanel extends JPanel {
         messegeBtn.setContentAreaFilled(true);
         messegeBtn.setBorderPainted(false);
         messegeBtn.setFocusPainted(false);
-        
-        messegeBtn.addActionListener(e -> {nav.openTotMessage(id, nName);});
 
+        messegeBtn.addActionListener(e -> {
+            nav.openTotMessage(id, nName);
+        });
 
         icon = new ImageIcon(Resize.resizeImage("Front/.src/group_icon.png", s, s, 1));
         JButton friendBtn = new JButton(icon);
@@ -324,32 +316,34 @@ class MainTopPanel extends JPanel {
         friendBtn.setContentAreaFilled(true);
         friendBtn.setBorderPainted(false);
         friendBtn.setFocusPainted(false);
-        
-        friendBtn.addActionListener(e -> {nav.openFriend(id, nName);});
 
+        friendBtn.addActionListener(e -> {
+            nav.openFriend(id, nName);
+        });
 
-        icon = new ImageIcon(Resize.resizeImage("Front/.src/restart_icon.png", s-5, s-5, 1));
+        icon = new ImageIcon(Resize.resizeImage("Front/.src/restart_icon.png", s - 5, s - 5, 1));
         JButton refreshBtn = new JButton(icon);
         refreshBtn.setBackground(Color.decode("#141414"));
         refreshBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    
+
         refreshBtn.setOpaque(true);
         refreshBtn.setContentAreaFilled(true);
         refreshBtn.setBorderPainted(false);
-        refreshBtn.setFocusPainted(false);  
+        refreshBtn.setFocusPainted(false);
 
-        refreshBtn.addActionListener(e -> {center.refresh();});
-
+        refreshBtn.addActionListener(e -> {
+            center.refresh();
+        });
 
         icon = new ImageIcon(Resize.resizeImage("Front/.src/new_post_icon.png", s, s, 1));
         JButton postBtn = new JButton(icon);
         postBtn.setBackground(Color.decode("#141414"));
         postBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-    
+
         postBtn.setOpaque(true);
         postBtn.setContentAreaFilled(true);
         postBtn.setBorderPainted(false);
-        postBtn.setFocusPainted(false);  
+        postBtn.setFocusPainted(false);
 
         PostDialogBtnListener dialog = new PostDialogBtnListener();
         dialog.btn.addActionListener(e -> {
@@ -362,29 +356,28 @@ class MainTopPanel extends JPanel {
                 dialog.dialog.dispose();
             } catch (IOException ec) {
                 JOptionPane.showMessageDialog(
-                    null,
-                    "이미지 파일을 찾을 수 없습니다.",
-                    "경고", JOptionPane.WARNING_MESSAGE);
+                        null,
+                        "이미지 파일을 찾을 수 없습니다.",
+                        "경고", JOptionPane.WARNING_MESSAGE);
             }
         });
 
         postBtn.addActionListener(dialog);
 
-        
         btnPanel.add(postBtn);
         btnPanel.add(refreshBtn);
-        btnPanel.add(friendBtn);        
+        btnPanel.add(friendBtn);
         btnPanel.add(messegeBtn);
-        
+
         add(btnPanel, BorderLayout.EAST);
     }
 }
 
 class MainCenterPanel extends JPanel {
     Navigator nav;
-    String id; String nName;
+    String id;
+    String nName;
     PostServerClient server;
-
 
     ScrollableListPanel listPanel = new ScrollableListPanel();
     JScrollPane scrollPane;
@@ -419,33 +412,49 @@ class MainCenterPanel extends JPanel {
 
     MainCenterPanel(Navigator nav, String id, String nName, PostServerClient server) {
         this.nav = nav;
-        this.id = id; this.nName = nName;
+        this.id = id;
+        this.nName = nName;
         this.server = server;
 
         setLayout(new BorderLayout());
         setBackground(Color.decode("#141414"));
-        
+
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
         listPanel.setBackground(Color.decode("#141414"));
 
         scrollPane = new JScrollPane(listPanel);
         scrollPane.setBorder(null);
+        scrollPane.setBackground(Color.decode("#141414"));
+        scrollPane.getViewport().setBackground(Color.decode("#141414"));
         add(scrollPane, BorderLayout.CENTER);
-        
+
         refresh();
     }
 
     void refresh() {
-        String [] readable_post = server.GetReadablePostRequest(id);
+        String[] readable_post = server.GetReadablePostRequest(id);
         // System.out.println(Arrays.toString(readable_post));
         listPanel.removeAll();
-        if (readable_post != null){
+        if (readable_post != null && readable_post.length > 0) {
             for (String post_id : readable_post) {
                 Map<String, Object> post = server.GetPostRequest(post_id);
                 Post p = new Post(nav, post, id, nName, server);
 
                 listPanel.add(p);
             }
+        } else {
+            // 게시글이 없을 때 안내 메시지 표시
+            JPanel emptyPanel = new JPanel();
+            emptyPanel.setLayout(new GridBagLayout());
+            emptyPanel.setBackground(Color.decode("#141414"));
+            emptyPanel.setPreferredSize(new Dimension(500, 600));
+
+            JLabel emptyLabel = new JLabel("No Post... :(");
+            emptyLabel.setFont(new Font("Arial", Font.BOLD, 24));
+            emptyLabel.setForeground(Color.GRAY);
+
+            emptyPanel.add(emptyLabel);
+            listPanel.add(emptyPanel);
         }
         listPanel.revalidate();
         listPanel.repaint();
@@ -453,21 +462,18 @@ class MainCenterPanel extends JPanel {
 }
 
 public class MainView extends JFrame {
-    private final Navigator nav;
     PostServerClient server = new PostServerClient();
 
-    public MainView(Navigator nav, String id, String nName){
-        this.nav = nav;
-
+    public MainView(Navigator nav, String id, String nName) {
         setTitle("HongStar");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 800);
         setBackground(Color.decode("#141414"));
         setLayout(new BorderLayout());
-    
+
         MainCenterPanel mainCenterPanel = new MainCenterPanel(nav, id, nName, server);
         MainTopPanel mainTopPanel = new MainTopPanel(nav, id, nName, mainCenterPanel);
- 
+
         add(mainTopPanel, BorderLayout.NORTH);
         add(mainCenterPanel, BorderLayout.CENTER);
 

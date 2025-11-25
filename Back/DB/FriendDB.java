@@ -9,7 +9,7 @@ import com.google.gson.reflect.TypeToken;
 public class FriendDB {
     //getFriend
     public String getFriend(String id) {
-        String sql = "SELECT * FFROM FRIENDS WHERE USER_ID = ?";
+        String sql = "SELECT * FROM USER_FRIENDS WHERE USER_ID = ?";
 
         try (Connection conn = DBManager.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)) {
@@ -19,7 +19,7 @@ public class FriendDB {
 
             List<String> friends = new ArrayList<>();
             while (rs.next()) {                
-                String value = rs.getString(1);
+                String value = rs.getString("FRIEND_ID");
                 friends.add(value);
             }
 
@@ -70,8 +70,8 @@ public class FriendDB {
 
     //getFriendRequest
     public String getFriendRequest(String id) {
-        String sql_receive = "SELECT FROM_USER_ID FROM FRIEND_REQUESTS WHERE FROM_USER_ID = ?";
-        String sql_sent = "SELECT TO_USER_ID FROM FRIEND_REQUESTS WHERE TO_USER_ID = ?";
+        String sql_receive = "SELECT FROM_USER_ID FROM FRIEND_REQUESTS WHERE TO_USER_ID = ?";
+        String sql_sent = "SELECT TO_USER_ID FROM FRIEND_REQUESTS WHERE FROM_USER_ID = ?";
 
         try (Connection conn = DBManager.getConnection();
             PreparedStatement pstmt_receive = conn.prepareStatement(sql_receive);
@@ -110,7 +110,7 @@ public class FriendDB {
     //acceptFriendRequest
     public void acceptFriendRequest(String from_id, String to_id) {
         String sql_delete = "DELETE FROM FRIEND_REQUESTS WHERE FROM_USER_ID = ? AND TO_USER_ID = ?";
-        String sql_insert = "INSERT INTO FRIENDS (USER_ID, FRIEND_ID) VALUES (?, ?)";
+        String sql_insert = "INSERT INTO USER_FRIENDS (USER_ID, FRIEND_ID) VALUES (?, ?)";
 
         try (Connection conn = DBManager.getConnection();
             PreparedStatement pstmt_delete = conn.prepareStatement(sql_delete);
@@ -161,7 +161,7 @@ public class FriendDB {
             post_ids_str = String.join(",", post_ids_str_list);
 
             sorted_post_ids_str = PostDB.sortPostList(post_ids_str);
-            sorted_post_ids = gson.fromJson(sorted_post_ids_str, new TypeToken<List<String>>(){}.getType());
+            sorted_post_ids = gson.fromJson(sorted_post_ids_str, new TypeToken<List<Integer>>(){}.getType());
             PostDB.deleteAllReadablePost(to_id);
             for (int post_id : sorted_post_ids) {
                 PostDB.addReadablePost(to_id, post_id);

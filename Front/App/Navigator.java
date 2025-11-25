@@ -13,7 +13,7 @@ public interface Navigator {
 
     void openFriend(String id, String nName);
 
-    void openUserMessage(String sender, String se_nName, Map<String, String> receiver);
+    void openUserMessage(int chat_id, String sender, String se_nName, Map<String, String> receiver);
 
     void openComments(List<Map<String, String>> comments, String id, String nName, String post_id);
 }

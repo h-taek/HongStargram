@@ -119,7 +119,7 @@ class MessagePanel extends JPanel{
     Map<String, String> receiver;
     String se_nName;
 
-    MessagePanel(Navigator nav, String sender, String se_nName, Map<String, String> receiver) {
+    MessagePanel(Navigator nav, int chat_id, String sender, String se_nName, Map<String, String> receiver) {
         this.nav = nav;
         this.sender = sender;
         this.receiver = receiver;
@@ -161,7 +161,7 @@ class MessagePanel extends JPanel{
         btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                nav.openUserMessage(sender, se_nName, receiver);
+                nav.openUserMessage(chat_id, sender, se_nName, receiver);
             }
         });
         add(btn);
@@ -202,23 +202,21 @@ class TotMessagePanel extends JPanel {
 
     private void refreshMessages() {
         // 서버에서 메시지 리스트 요청
-        String [] ids = server.ChatListRequest(id);
+        Map<Integer, List<String>> chat_map = server.GetChatListRequest(id);
 
         listPanel.removeAll(); // 이전 메시지 패널 초기화
-        if (ids != null){
-            for (String r : ids) {
-                List<String> receiver_list = new ArrayList<String>(Arrays.asList(r.split("\\|")));
+        if (chat_map != null){
+            for (Integer chat_id : chat_map.keySet()) {
+                List<String> receiver_list = chat_map.get(chat_id);
                 receiver_list.remove(id); 
 
                 Map<String, String> receiver_map = new HashMap<>();
-                List<String> re_nName_list = new ArrayList<>();
                 for (String rec : receiver_list) {
                     String name = server.GetNNameRequest(rec);
                     receiver_map.put(rec, name);
                 }
                 
-
-                listPanel.add(new MessagePanel(nav, id, nName, receiver_map));
+                listPanel.add(new MessagePanel(nav, chat_id, id, nName, receiver_map));
             }
         }
         listPanel.revalidate();
@@ -299,7 +297,7 @@ class TotMessegeBtnPanel extends JPanel {
                     }
                 }
 
-                nav.openUserMessage(id, se_nName, receiver_map);
+                nav.openUserMessage(-1, id, se_nName, receiver_map);
                 dialog.dialog.dispose();
             }
         });

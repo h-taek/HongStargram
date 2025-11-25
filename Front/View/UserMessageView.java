@@ -308,7 +308,7 @@ public class UserMessageView extends JFrame {
     String sender;
     Map<String, String> receiver;
 
-    public UserMessageView(Navigator nav, String sender, String se_nName, Map<String, String> receiver) {
+    public UserMessageView(Navigator nav,int chat_id, String sender, String se_nName, Map<String, String> receiver) {
         this.nav = nav;
         this.sender = sender;
         this.receiver = receiver;
@@ -322,7 +322,7 @@ public class UserMessageView extends JFrame {
         
         UserMessegeTopPanel top = new UserMessegeTopPanel(nav, sender, se_nName, receiver.values().toArray(new String[0]));
         ChatListPanel chat = new ChatListPanel(receiver);
-        ChatServerClient chat_server = new ChatServerClient(sender, receiver.keySet().toArray(new String[0]), new ChatListener() {
+        ChatServerClient chat_server = new ChatServerClient(chat_id, sender, receiver.keySet().toArray(new String[0]), new ChatListener() {
             @Override
             public void onMessage(String sender, String msg_) {
                 Message msg = new Message(sender, msg_, false);

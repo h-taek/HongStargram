@@ -26,39 +26,35 @@ public class PostDB {
             psmt_post.setInt(1, post_id);
             ResultSet rs_post = psmt_post.executeQuery();
             
-            ResultSetMetaData meta = rs_post.getMetaData();
-            int cnt_post = meta.getColumnCount();
-            while (rs_post.next()) {
-                for (int i = 1; i <= cnt_post; i++) {
-                    String columnName = meta.getColumnLabel(i);  
-                    Object value = rs_post.getObject(i);         
-                    post.put(columnName, value);
+            if (rs_post.next()) {
+                post.put("post_id", rs_post.getInt("POST_ID"));
+                post.put("user_id", rs_post.getString("USER_ID"));
+                post.put("content", rs_post.getString("CONTENT"));
+                post.put("created_at", rs_post.getTimestamp("CREATED_AT").toString());
+                
+                // image
+                String imagePath = rs_post.getString("IMAGE_PATH");
+                File file = new File(imagePath);
+                if (file.exists()) {
+                    String encodedImg = Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
+                    post.put("image", encodedImg);
                 }
             }
-
-            // Image
-            File file = new File(post.get("IMAGE_PATH").toString());
-            String encodedImg = Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
-            post.remove("IMAGE_PATH");
-            post.put("IMAGE", encodedImg);
 
             
             // Comments
             psmt_comment.setInt(1, post_id);
             ResultSet rs_comment = psmt_comment.executeQuery();
             List<Map<String, Object>> comments = new ArrayList<>();
-            ResultSetMetaData commentMeta = rs_comment.getMetaData();
-            int cnt_comment = commentMeta.getColumnCount();
             while (rs_comment.next()) {
                 Map<String, Object> comment = new HashMap<>();
-                for (int i = 1; i <= cnt_comment; i++) {
-                    String columnName = commentMeta.getColumnLabel(i);
-                    Object value = rs_comment.getObject(i);
-                    comment.put(columnName, value);
-                }
+                comment.put("comment_id", rs_comment.getInt("COMMENT_ID"));
+                comment.put("post_id", rs_comment.getInt("POST_ID"));
+                comment.put("user_id", rs_comment.getString("USER_ID"));
+                comment.put("content", rs_comment.getString("CONTENT"));
                 comments.add(comment);
             }
-            post.put("COMMENTS", comments);
+            post.put("comments", comments);
 
             // Likes
             psmt_like.setInt(1, post_id);
@@ -68,7 +64,7 @@ public class PostDB {
                 String user_id = rs_like.getString("USER_ID");
                 likes.add(user_id);
             }
-            post.put("LIKES", likes);
+            post.put("likes", likes);
 
 
             Gson gson = new Gson();
@@ -114,11 +110,12 @@ public class PostDB {
 
     //sortPostList
     public String sortPostList(String post_ids) {
-        String sql = "SELECT POST_ID FROM POSTS WHERE POST_ID IN (" + post_ids + ") ORDER BY CREATED_AT DESC";
+        String sql = "SELECT POST_ID FROM POSTS WHERE POST_ID IN (?) ORDER BY CREATED_AT DESC";
 
         try (Connection conn = DBManager.getConnection();
              PreparedStatement psmt = conn.prepareStatement(sql)) {
              
+            psmt.setString(1, post_ids);
             ResultSet rs = psmt.executeQuery();
             List<Integer> sorted_post_ids = new ArrayList<>();
             while (rs.next()) {                
@@ -147,7 +144,7 @@ public class PostDB {
             ResultSet rs = psmt.executeQuery();
             List<String> post_ids = new ArrayList<>();
             while (rs.next()) {                
-                String post_id = rs.getString("POST_ID");
+                String post_id = String.valueOf(rs.getInt("POST_ID"));
                 post_ids.add(post_id);
             }
 
@@ -224,11 +221,14 @@ public class PostDB {
             Map<String, String> postMap = gson.fromJson(post, new TypeToken<Map<String, String>>(){}.getType());
 
             ResultSet rs = psmt_get.executeQuery();
-            int post_id = rs.getInt("POST_ID") + 1;
+            int post_id;
+            rs.next();
+            post_id = rs.getInt("POST_ID") + 1;
 
             String encodedImg = postMap.get("image");
             byte[] decodedImg = Base64.getDecoder().decode(encodedImg);
-            String imagePath = "./image/img_" + post_id + ".jpg";
+            // String imagePath = "./image/img_" + post_id + ".jpg";
+            String imagePath = "./Back/image/img_" + post_id + ".jpg";
             try (FileOutputStream fos = new FileOutputStream(imagePath)) {fos.write(decodedImg);}
 
             psmt_add.setInt(1, post_id);                
@@ -239,6 +239,8 @@ public class PostDB {
             psmt_add.executeUpdate();
 
             // Add readable post to friends
+            addReadablePost(postMap.get("user_id"), post_id);
+            
             String friends = new FriendDB().getFriend(postMap.get("user_id"));
             List<String> friendList = gson.fromJson(friends, new TypeToken<List<String>>(){}.getType());
             for (String friend_id : friendList) {
@@ -257,27 +259,54 @@ public class PostDB {
     //deletePost
     public void deletePost(int post_id) {
         String sql_get = "SELECT USER_ID FROM POSTS WHERE POST_ID = ?";
-        String sql_delete = "DELETE FROM POSTS WHERE POST_ID = ?";
+        String sql_delete_comments = "DELETE FROM COMMENTS WHERE POST_ID = ?";
+        String sql_delete_likes = "DELETE FROM POST_LIKES WHERE POST_ID = ?";
+        String sql_delete_post = "DELETE FROM POSTS WHERE POST_ID = ?";
 
         try (Connection conn = DBManager.getConnection();
             PreparedStatement psmt_get = conn.prepareStatement(sql_get);
-            PreparedStatement psmt_delete = conn.prepareStatement(sql_delete)){
+            PreparedStatement psmt_delete_comments = conn.prepareStatement(sql_delete_comments);
+            PreparedStatement psmt_delete_likes = conn.prepareStatement(sql_delete_likes);
+            PreparedStatement psmt_delete_post = conn.prepareStatement(sql_delete_post)){
             
+            // 1. USER_ID 가져오기
             psmt_get.setInt(1, post_id);
             ResultSet rs = psmt_get.executeQuery();
-            String user_id = rs.getString("USER_ID");
-
-            psmt_delete.setInt(1, post_id);
-
-            psmt_delete.executeUpdate();
-
-            // Delete readable posts
-            String friends = new FriendDB().getFriend(user_id);
-            List<String> friendList = new Gson().fromJson(friends, new TypeToken<List<String>>(){}.getType());
-            for (String friend_id : friendList) {
-                deleteReadablePost(friend_id, post_id);
+            
+            if (!rs.next()) {
+                System.out.println("Post not found: " + post_id);
+                return;
             }
             
+            String user_id = rs.getString("USER_ID");
+
+            // 2. 먼저 readable posts 삭제 (본인 + 친구들)
+            deleteReadablePost(user_id, post_id);
+            
+            String friends = new FriendDB().getFriend(user_id);
+            if (friends != null) {
+                List<String> friendList = new Gson().fromJson(friends, new TypeToken<List<String>>(){}.getType());
+                if (friendList != null) {
+                    for (String friend_id : friendList) {
+                        deleteReadablePost(friend_id, post_id);
+                    }
+                }
+            }
+
+            // 3. 댓글 삭제
+            psmt_delete_comments.setInt(1, post_id);
+            psmt_delete_comments.executeUpdate();
+
+            // 4. 좋아요 삭제
+            psmt_delete_likes.setInt(1, post_id);
+            psmt_delete_likes.executeUpdate();
+
+            // 5. 마지막으로 POST 삭제
+            psmt_delete_post.setInt(1, post_id);
+            psmt_delete_post.executeUpdate();
+            
+            System.out.println("Post deleted successfully: " + post_id);
+        
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("deletePost Error");
@@ -294,6 +323,7 @@ public class PostDB {
              PreparedStatement psmt_add = conn.prepareStatement(sql_add)){
             
             ResultSet rs = psmt_get.executeQuery();
+            rs.next();
             int comment_id = rs.getInt("COMMENT_ID") + 1;
             
             psmt_add.setInt(1, comment_id);                

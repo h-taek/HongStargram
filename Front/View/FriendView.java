@@ -60,7 +60,7 @@ class FreindTopPanel extends JPanel {
                                 "경고", JOptionPane.WARNING_MESSAGE);
                     return;
                 }
-                Map<String, String[]> request_list = server.FriendStatusRequest(id);
+                Map<String, String[]> request_list = server.GetFriendRequestRequest(id);
                 for (String [] arr : request_list.values()){
                     for (String r_id : arr){
                         if (r_id.equals(receiver)){
@@ -70,7 +70,7 @@ class FreindTopPanel extends JPanel {
                         }
                     }
                 }
-                String [] id_list = server.FriendListRequest(id);
+                String [] id_list = server.GetFriendListRequest(id);
                 if (id_list != null){
                     for (String id_ : id_list){
                         if (id_.equals(receiver)){
@@ -81,7 +81,7 @@ class FreindTopPanel extends JPanel {
                     }
                 }
 
-                server.FriendAddRequest(id, receiver, true);
+                server.FriendRequestRequest(id, receiver, true);
                 JOptionPane.showMessageDialog(null, "요청 성공", 
                             "", JOptionPane.INFORMATION_MESSAGE);
                 dialog.dialog.dispose();
@@ -169,7 +169,7 @@ class FriendRequestPanel extends FriendPanel {
         acceptBtn.setForeground(Color.white);
         acceptBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        acceptBtn.addActionListener(e -> server.FriendRequestRequest(my_id, your_id, true));
+        acceptBtn.addActionListener(e -> server.FriendRequestResponseRequest(my_id, your_id, true));
 
         RoundButton refuseBtn = new RoundButton("거절", 15);
         refuseBtn.setFont(new Font("Arial", Font.PLAIN, 12));
@@ -179,7 +179,7 @@ class FriendRequestPanel extends FriendPanel {
         refuseBtn.setForeground(Color.white);
         refuseBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        refuseBtn.addActionListener(e -> server.FriendRequestRequest(my_id, your_id, false));
+        refuseBtn.addActionListener(e -> server.FriendRequestResponseRequest(my_id, your_id, false));
 
         JPanel buttonPanel = makeBtnPanel();
         buttonPanel.add(acceptBtn);
@@ -213,7 +213,7 @@ class FriendAddPanel extends FriendPanel {
         addBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         addBtn.addActionListener(e -> {
-            server.FriendAddRequest(my_id, your_id, false);
+            server.FriendRequestRequest(my_id, your_id, false);
         });
         
         JPanel buttonPanel = makeBtnPanel();
@@ -276,7 +276,7 @@ class TotFreindPanel extends JPanel {
         ListLabelPanel label = new ListLabelPanel("친구 목록");
         listPanel.add(label);
         
-        String [] ids = server.FriendListRequest(id);
+        String [] ids = server.GetFriendListRequest(id);
         if (ids != null){
             for (String id : ids){
                 String nName = server.GetNNameRequest(id);
@@ -285,14 +285,14 @@ class TotFreindPanel extends JPanel {
             }
         }
 
-        Map<String, String[]> id_list = server.FriendStatusRequest(id);
+        Map<String, String[]> id_list = server.GetFriendRequestRequest(id);
 
         // 요청 목록
         label = new ListLabelPanel("요청 목록");
         listPanel.add(label);
 
-        if (id_list != null && id_list.get("friend_request") != null) {
-            ids = id_list.get("friend_request");
+        if (id_list != null && id_list.get("receive_request") != null) {
+            ids = id_list.get("receive_request");
             if (ids != null) {
                 for (String id_ : ids) {
                     String nName = server.GetNNameRequest(id_);
@@ -306,8 +306,8 @@ class TotFreindPanel extends JPanel {
         label = new ListLabelPanel("신청 목록");
         listPanel.add(label);
 
-        if (id_list != null && id_list.get("friend_add") != null) {
-            ids = id_list.get("friend_add");
+        if (id_list != null && id_list.get("sent_request") != null) {
+            ids = id_list.get("sent_request");
             if (ids != null) {
                 for (String id_ : ids) {
                     String nName = server.GetNNameRequest(id_);

@@ -4,8 +4,6 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -15,7 +13,7 @@ public class PostServerClient {
     static private String hostIp = IP.ip;
     static int port = 8005;
 
-    public String [] GetReadablePostRequest(String id) {
+    public String [] GetReadablePostRequest(String user_id) {
         try{
             String urlStr = "http://" + hostIp + ":" + port + "/GetReadablePost";
             URI uri = URI.create(urlStr);
@@ -27,7 +25,7 @@ public class PostServerClient {
             connect.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
 
             try (OutputStream os = connect.getOutputStream()) {
-                os.write(id.getBytes(StandardCharsets.UTF_8));
+                os.write(user_id.getBytes(StandardCharsets.UTF_8));
             }        
             
             // connect.getResponseCode();
@@ -51,7 +49,7 @@ public class PostServerClient {
         }
     }
 
-    public Map<String, Object> GetPostRequest(String id) {
+    public Map<String, Object> GetPostRequest(String post_id) {
         try{
             String urlStr = "http://" + hostIp + ":" + port + "/GetPost";
             URI uri = URI.create(urlStr);
@@ -63,7 +61,7 @@ public class PostServerClient {
             connect.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
 
             try (OutputStream os = connect.getOutputStream()) {
-                os.write(id.getBytes(StandardCharsets.UTF_8));
+                os.write(post_id.getBytes(StandardCharsets.UTF_8));
             }        
             
             connect.getResponseCode();
@@ -76,6 +74,18 @@ public class PostServerClient {
             Gson gson = new Gson();
             Map<String, Object> post = gson.fromJson(response.toString(), new TypeToken<Map<String, Object>>(){}.getType());
 
+            post.put("post_id", ((Number) post.get("post_id")).intValue());
+    
+            List<Map<String, Object>> comments = (List<Map<String, Object>>) post.get("comments");
+            for (Map<String, Object> comment : comments) {
+                if (comment.containsKey("comment_id")) {
+                    comment.put("comment_id", String.valueOf(((Number) comment.get("comment_id")).intValue()));
+                }
+                if (comment.containsKey("post_id")) {
+                    comment.put("post_id", String.valueOf(((Number) comment.get("post_id")).intValue()));
+                }
+            }
+            
             br.close();
             connect.disconnect();
             return post;    
@@ -86,7 +96,7 @@ public class PostServerClient {
         }   
     }
 
-    public void AddCommentRequest(String post_id, String id, String text) {
+    public void AddCommentRequest(String post_id, String id, String comment) {
         try{
             String urlStr = "http://" + hostIp + ":" + port + "/AddComment";
             URI uri = URI.create(urlStr);
@@ -97,7 +107,7 @@ public class PostServerClient {
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-            String json = "{\"post_id\":\"" + post_id + "\", \"id\":\""+ id + "\", \"text\":\"" + text + "\"}";
+            String json = "{\"post_id\":\"" + post_id + "\", \"user_id\":\""+ id + "\", \"comment\":\"" + comment + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
@@ -113,7 +123,7 @@ public class PostServerClient {
         }
     }
 
-    public void DeleteCommentRequest(String post_id, String comment_id) {
+    public void DeleteCommentRequest(String comment_id) {
         try{
             String urlStr = "http://" + hostIp + ":" + port + "/DeleteComment";
             URI uri = URI.create(urlStr);
@@ -122,11 +132,10 @@ public class PostServerClient {
             HttpURLConnection connect = (HttpURLConnection) url.openConnection();
             connect.setRequestMethod("POST");
             connect.setDoOutput(true);
-            connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+            connect.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
 
-            String json = "{\"post_id\":\"" + post_id + "\", \"comment_id\":\"" + comment_id + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
-                os.write(json.getBytes(StandardCharsets.UTF_8));
+                os.write(comment_id.getBytes(StandardCharsets.UTF_8));
             }
 
             connect.getResponseCode();
@@ -140,7 +149,7 @@ public class PostServerClient {
         }
     }    
 
-    public void LikeRequest(String post_id, String id, String flag) {
+    public void LikeRequest(String post_id, String user_id, String flag) {
         try{
             String urlStr = "http://" + hostIp + ":" + port + "/Like";
             URI uri = URI.create(urlStr);
@@ -151,7 +160,7 @@ public class PostServerClient {
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-            String json = "{\"post_id\":\"" + post_id + "\", \"id\":\""+ id + "\", \"flag\":\"" + flag + "\"}";
+            String json = "{\"post_id\":\"" + post_id + "\", \"user_id\":\""+ user_id + "\", \"flag\":\"" + flag + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
@@ -178,11 +187,7 @@ public class PostServerClient {
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-            String timestamp = LocalDateTime.now().format(
-                DateTimeFormatter.ofPattern("yyyyMMddHHmmss")
-            );
-
-            String json = "{\"user_id\":\"" + user_id + "\", \"content\":\"" + content + "\", \"timestamp\":\"" + timestamp + "\", \"image\":\"" + img + "\"}";
+            String json = "{\"user_id\":\"" + user_id + "\", \"content\":\"" + content + "\", \"image\":\"" + img + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
@@ -198,7 +203,7 @@ public class PostServerClient {
         }
     }
 
-        public void DeletePostRequest(String post_id) {
+    public void DeletePostRequest(String post_id) {
         try{
             String urlStr = "http://" + hostIp + ":" + port + "/DeletePost";
             URI uri = URI.create(urlStr);

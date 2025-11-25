@@ -12,6 +12,7 @@ public class UsersDB {
             pstmt.setString(1, id);
             pstmt.setString(2, pw);
             pstmt.setString(3, nName);
+            pstmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("addUser Error");
@@ -26,7 +27,10 @@ public class UsersDB {
              
             pstmt.setString(1, id);
             ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {return true;}
+            if (rs.next()) {
+                int cnt = rs.getInt(1);
+                return cnt > 0;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("isUser Error");

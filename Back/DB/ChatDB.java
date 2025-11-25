@@ -7,23 +7,26 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 
 public class ChatDB {
-    //addChatRoom
+    // addChatRoom
     public int addNewChatRoom(String user_ids) {
         String sql_get_room = "SELECT MAX(ROOM_ID) AS ROOM_ID FROM CHAT_ROOMS";
         String sql_add_room = "INSERT INTO CHAT_ROOMS (ROOM_ID) VALUES (?)";
         String sql_member = "INSERT INTO CHAT_ROOM_MEMBERS (ROOM_ID, USER_ID) VALUES (?, ?)";
 
         Gson gson = new Gson();
-        List<String>user_id_list = gson.fromJson(user_ids, new TypeToken<List<String>>(){}.getType());
+        List<String> user_id_list = gson.fromJson(user_ids, new TypeToken<List<String>>(){}.getType());
 
         try (Connection conn = DBManager.getConnection();
-             PreparedStatement psmt_get_room = conn.prepareStatement(sql_get_room);
-             PreparedStatement psmt_add_room = conn.prepareStatement(sql_add_room);
-             PreparedStatement psmt_member = conn.prepareStatement(sql_member)) {
-            
-            psmt_get_room.executeQuery();
-            ResultSet rs = psmt_get_room.getResultSet();
-            int room_id = rs.getInt("ROOM_ID");
+                PreparedStatement psmt_get_room = conn.prepareStatement(sql_get_room);
+                PreparedStatement psmt_add_room = conn.prepareStatement(sql_add_room);
+                PreparedStatement psmt_member = conn.prepareStatement(sql_member)) {
+
+            ResultSet rs = psmt_get_room.executeQuery();
+            int room_id = 0;
+            if (rs.next()) {
+                room_id = rs.getInt("ROOM_ID");
+            }
+            room_id++; // 새 방 번호 생성 (기존 MAX + 1)
 
             psmt_add_room.setInt(1, room_id);
             psmt_add_room.executeUpdate();
@@ -43,12 +46,12 @@ public class ChatDB {
         }
     }
 
-    //addChat
+    // addChat
     public void addChat(int chat_id, String user_id, String msg) {
         String sql = "INSERT INTO CHAT_MESSAGES (ROOM_ID, SENDER_ID, MESSAGE, SENT_AT) VALUES (?, ?, ?, SYSDATE)";
 
         try (Connection conn = DBManager.getConnection();
-             PreparedStatement psmt = conn.prepareStatement(sql)) {
+                PreparedStatement psmt = conn.prepareStatement(sql)) {
 
             psmt.setInt(1, chat_id);
             psmt.setString(2, user_id);
@@ -61,17 +64,17 @@ public class ChatDB {
         }
     }
 
-    //getChatList
+    // getChatList
     public String getChatList(String user_id) {
-        String sql_room = "SELECT * FROM CHAT_ROOMS WHERE USER_ID = ?";
-        String sql_member = "SELECT * FROM CHAT_ROOM_MEMBERS WHERE WHERE ROOM_ID = ?";
+        String sql_room = "SELECT * FROM CHAT_ROOM_MEMBERS WHERE USER_ID = ?";
+        String sql_member = "SELECT * FROM CHAT_ROOM_MEMBERS WHERE ROOM_ID = ?";
 
         try (Connection conn = DBManager.getConnection();
-             PreparedStatement psmt_room = conn.prepareStatement(sql_room);
-             PreparedStatement psmt_member = conn.prepareStatement(sql_member)) {
-            
+                PreparedStatement psmt_room = conn.prepareStatement(sql_room);
+                PreparedStatement psmt_member = conn.prepareStatement(sql_member)) {
+
             psmt_room.setString(1, user_id);
-            ResultSet rs_room = psmt_room.getResultSet();
+            ResultSet rs_room = psmt_room.executeQuery();
 
             List<Integer> room_id_list = new ArrayList<>();
             while (rs_room.next()) {
@@ -81,7 +84,7 @@ public class ChatDB {
             Map<Integer, List<String>> chat_member_list = new HashMap<>();
             for (Integer room_id : room_id_list) {
                 psmt_member.setInt(1, room_id);
-                ResultSet rs_member = psmt_member.getResultSet();
+                ResultSet rs_member = psmt_member.executeQuery();
                 List<String> member_list = new ArrayList<>();
                 while (rs_member.next()) {
                     member_list.add(rs_member.getString("USER_ID"));
@@ -97,22 +100,22 @@ public class ChatDB {
             return null;
         }
     }
-            
-    //getChat
+
+    // getChat
     public String getChat(int chat_id) {
-        String sql = "SELECT SENDER_ID, MESSAGE FROM CHAT_MESSSAGES WHERE ROOM_ID = ? ORDER BY SENT_AT ASC";
+        String sql = "SELECT SENDER_ID, MESSAGE FROM CHAT_MESSAGES WHERE ROOM_ID = ? ORDER BY SENT_AT ASC";
 
         try (Connection conn = DBManager.getConnection();
-             PreparedStatement psmt = conn.prepareStatement(sql)) {
-            
+                PreparedStatement psmt = conn.prepareStatement(sql)) {
+
             psmt.setInt(1, chat_id);
-            ResultSet rs = psmt.getResultSet();
+            ResultSet rs = psmt.executeQuery();
 
             List<Map<String, String>> chat_list = new ArrayList<>();
             while (rs.next()) {
                 Map<String, String> chat = new HashMap<>();
-                chat.put("sender_id", rs.getString("SENDER_ID"));
-                chat.put("message", rs.getString("MESSAGE"));
+                chat.put("sender", rs.getString("SENDER_ID"));
+                chat.put("msg", rs.getString("MESSAGE"));
                 chat_list.add(chat);
             }
 

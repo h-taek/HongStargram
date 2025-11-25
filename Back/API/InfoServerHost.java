@@ -38,7 +38,6 @@ class SignupHandler implements HttpHandler {
                 exchange.sendResponseHeaders(1, response.length());
             }
 
-            
             try (OutputStream os = exchange.getResponseBody()) {
                 os.write(response.getBytes());
             }
@@ -132,7 +131,7 @@ class GetChatListHandler implements HttpHandler {
 
             ChatDB chatDB = new ChatDB();
             String chat_list = chatDB.getChatList(user_id);
-            // System.out.println(info);
+
             byte[] payload = chat_list.getBytes(StandardCharsets.UTF_8);
             exchange.getResponseHeaders().set("Content-Type", "text/plain; charset=UTF-8");
             exchange.sendResponseHeaders(1, payload.length);
@@ -242,8 +241,8 @@ class FriendRequestResponseHandler implements HttpHandler {
             String your_id = data.get("your_id");
             
             FriendDB friendDB = new FriendDB();
-            if (data.get("flag").equals("true")) friendDB.addFriendRequest(your_id, my_id);
-            else friendDB.deleteFriendRequest(your_id, my_id);
+            if (data.get("flag").equals("true")) friendDB.acceptFriendRequest(your_id, my_id);
+            else friendDB.rejectFriendRequest(your_id, my_id);
 
             exchange.sendResponseHeaders(1,-1);
         } catch (Exception e) {

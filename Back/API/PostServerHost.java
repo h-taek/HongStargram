@@ -74,10 +74,10 @@ class AddCommentHandler implements HttpHandler {
 
             int post_id = Integer.parseInt(data.get("post_id"));
             String user_id = data.get("user_id");
-            String text = data.get("text");
+            String comment = data.get("comment");
             PostDB postDB = new PostDB();
 
-            postDB.addComment(post_id, user_id, text);
+            postDB.addComment(post_id, user_id, comment);
             exchange.sendResponseHeaders(1, -1);
         } catch (Exception e) {
             System.out.println("PostServerHost.AddCommentHandler Err!");
@@ -95,10 +95,7 @@ class DeleteCommentHandler implements HttpHandler {
             InputStream in = exchange.getRequestBody();
             String body = new String(in.readAllBytes(), StandardCharsets.UTF_8);
 
-            Gson gson = new Gson();
-            Map<String, String> data = gson.fromJson(body, new TypeToken<Map<String, String>>(){}.getType());
-
-            int comment_id = Integer.parseInt(data.get("comment_id"));
+            int comment_id = Integer.parseInt(body);
 
             PostDB postDB = new PostDB();
             postDB.deleteComment(comment_id);

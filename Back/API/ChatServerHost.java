@@ -54,7 +54,7 @@ public class ChatServerHost {
                 // 첫 입력은 id
                 String body = in.readLine();
                 Gson gson = new Gson();
-                Map<String, String> chat_json = gson.fromJson(body, new TypeToken<Map<String, String>>(){}.getType());
+                Map<String, Object> chat_json = gson.fromJson(body, new TypeToken<Map<String, Object>>(){}.getType());
 
                 int chat_id = Integer.parseInt(chat_json.get("chat_id").toString());
                 String sender = chat_json.get("sender").toString();
@@ -66,7 +66,11 @@ public class ChatServerHost {
                 chatDB = new ChatDB();
 
                 // 채팅방 생성
-                if (chat_id == -1) {chat_id = chatDB.addNewChatRoom(receivers);}
+                if (chat_id == -1) {
+                    List<String> user_id_list = gson.fromJson(receivers, new TypeToken<List<String>>(){}.getType());
+                    user_id_list.add(sender);
+                    chat_id = chatDB.addNewChatRoom(gson.toJson(user_id_list));
+                }
 
                 // 접속하면 서버의 기록을 전송
                 String chat_log = chatDB.getChat(chat_id);

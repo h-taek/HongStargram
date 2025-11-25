@@ -77,8 +77,8 @@ class Comment extends JPanel {
         );
         setBackground(Color.decode("#141414"));
 
-        String user_id = comment.get("id");
-        String msg = comment.get("comment");
+        String user_id = comment.get("user_id");
+        String msg = comment.get("content");
         String comment_id = comment.get("comment_id");
 
         JPanel top_panel = new JPanel();
@@ -102,7 +102,7 @@ class Comment extends JPanel {
             btn.setBorderPainted(false);
             btn.setFocusPainted(false);
             btn.addActionListener(e -> {
-                server.DeleteCommentRequest(center.post_id, comment_id);
+                server.DeleteCommentRequest(comment_id);
 
                 Map<String, Object> post = server.GetPostRequest(center.post_id);
                 List<Map<String, String>> comments = (List<Map<String, String>>) post.get("comments");

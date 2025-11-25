@@ -11,8 +11,6 @@ public class ChatServerClient {
     private static final String host_ip = IP.ip; // 서버 IP
     private static final int port = 8004;               // 서버 포트
 
-    private String sender;
-    private String [] receiver;
     public List<Map<String, String>> chat_log;
     private String line;
 
@@ -20,13 +18,7 @@ public class ChatServerClient {
     BufferedReader in;
     PrintWriter out;
 
-    private ChatListener cl;
-
-    public ChatServerClient(String sender, String [] receiver, ChatListener cl) {
-        this.sender = sender;
-        this.receiver = receiver;
-        this.cl = cl;
-
+    public ChatServerClient(int chat_id, String sender, String [] receiver, ChatListener cl) {
         try {
             socket = new Socket(host_ip, port);
             in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
@@ -34,9 +26,8 @@ public class ChatServerClient {
 
             Gson gson = new Gson();
 
-            // chat_id 같이 전송, 없으면 new_chat 태그로 전송
-            String json = "{\"sender\":\"" + sender + "\",\"receiver\": " + gson.toJson(receiver) + "}";
             // id 전송
+            String json = "{\"chat_id\":\"" + chat_id + "\",\"sender\":\"" + sender + "\",\"receiver\": " + gson.toJson(receiver) + "}";
             out.println(json);
 
             // 첫 입력은 채팅 히스토리
