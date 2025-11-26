@@ -17,14 +17,15 @@ public class ChatDB {
         List<String> user_id_list = gson.fromJson(user_ids, new TypeToken<List<String>>(){}.getType());
 
         try (Connection conn = DBManager.getConnection();
-                PreparedStatement psmt_get_room = conn.prepareStatement(sql_get_room);
-                PreparedStatement psmt_add_room = conn.prepareStatement(sql_add_room);
-                PreparedStatement psmt_member = conn.prepareStatement(sql_member)) {
+             PreparedStatement psmt_get_room = conn.prepareStatement(sql_get_room);
+             PreparedStatement psmt_add_room = conn.prepareStatement(sql_add_room);
+             PreparedStatement psmt_member = conn.prepareStatement(sql_member)) {
 
-            ResultSet rs = psmt_get_room.executeQuery();
             int room_id = 0;
-            if (rs.next()) {
-                room_id = rs.getInt("ROOM_ID");
+            try (ResultSet rs = psmt_get_room.executeQuery()) {
+                if (rs.next()) {
+                    room_id = rs.getInt("ROOM_ID");
+                }
             }
             room_id++; // 새 방 번호 생성 (기존 MAX + 1)
 
@@ -70,26 +71,28 @@ public class ChatDB {
         String sql_member = "SELECT * FROM CHAT_ROOM_MEMBERS WHERE ROOM_ID = ?";
 
         try (Connection conn = DBManager.getConnection();
-                PreparedStatement psmt_room = conn.prepareStatement(sql_room);
-                PreparedStatement psmt_member = conn.prepareStatement(sql_member)) {
+             PreparedStatement psmt_room = conn.prepareStatement(sql_room);
+             PreparedStatement psmt_member = conn.prepareStatement(sql_member)) {
 
             psmt_room.setString(1, user_id);
-            ResultSet rs_room = psmt_room.executeQuery();
 
             List<Integer> room_id_list = new ArrayList<>();
-            while (rs_room.next()) {
-                room_id_list.add(rs_room.getInt("ROOM_ID"));
+            try (ResultSet rs_room = psmt_room.executeQuery()) {
+                while (rs_room.next()) {
+                    room_id_list.add(rs_room.getInt("ROOM_ID"));
+                }
             }
 
             Map<Integer, List<String>> chat_member_list = new HashMap<>();
             for (Integer room_id : room_id_list) {
                 psmt_member.setInt(1, room_id);
-                ResultSet rs_member = psmt_member.executeQuery();
-                List<String> member_list = new ArrayList<>();
-                while (rs_member.next()) {
-                    member_list.add(rs_member.getString("USER_ID"));
+                try (ResultSet rs_member = psmt_member.executeQuery()) {
+                    List<String> member_list = new ArrayList<>();
+                    while (rs_member.next()) {
+                        member_list.add(rs_member.getString("USER_ID"));
+                    }
+                    chat_member_list.put(room_id, member_list);
                 }
-                chat_member_list.put(room_id, member_list);
             }
 
             Gson gson = new Gson();
@@ -106,17 +109,18 @@ public class ChatDB {
         String sql = "SELECT SENDER_ID, MESSAGE FROM CHAT_MESSAGES WHERE ROOM_ID = ? ORDER BY SENT_AT ASC";
 
         try (Connection conn = DBManager.getConnection();
-                PreparedStatement psmt = conn.prepareStatement(sql)) {
+             PreparedStatement psmt = conn.prepareStatement(sql)) {
 
             psmt.setInt(1, chat_id);
-            ResultSet rs = psmt.executeQuery();
 
             List<Map<String, String>> chat_list = new ArrayList<>();
-            while (rs.next()) {
-                Map<String, String> chat = new HashMap<>();
-                chat.put("sender", rs.getString("SENDER_ID"));
-                chat.put("msg", rs.getString("MESSAGE"));
-                chat_list.add(chat);
+            try (ResultSet rs = psmt.executeQuery()) {
+                while (rs.next()) {
+                    Map<String, String> chat = new HashMap<>();
+                    chat.put("sender", rs.getString("SENDER_ID"));
+                    chat.put("msg", rs.getString("MESSAGE"));
+                    chat_list.add(chat);
+                }
             }
 
             Gson gson = new Gson();

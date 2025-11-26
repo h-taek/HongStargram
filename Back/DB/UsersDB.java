@@ -7,8 +7,8 @@ public class UsersDB {
         String sql = "INSERT INTO USERS (USER_ID, PW, NICKNAME) VALUES (?, ?, ?)";
 
         try (Connection conn = DBManager.getConnection();
-            PreparedStatement pstmt = conn.prepareStatement(sql)){
-            
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
             pstmt.setString(1, id);
             pstmt.setString(2, pw);
             pstmt.setString(3, nName);
@@ -18,18 +18,19 @@ public class UsersDB {
             System.out.println("addUser Error");
         }
     }
-    
+
     public boolean isUser(String id) {
         String sql = "SELECT COUNT(*) FROM USERS WHERE USER_ID = ?";
 
         try (Connection conn = DBManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
+
             pstmt.setString(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                int cnt = rs.getInt(1);
-                return cnt > 0;
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    int cnt = rs.getInt(1);
+                    return cnt > 0;
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -37,18 +38,19 @@ public class UsersDB {
         }
         return false;
     }
-    
+
     public String getUserPassword(String id) {
         String sql = "SELECT PW FROM USERS WHERE USER_ID = ?";
         String pw = null;
 
         try (Connection conn = DBManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
+
             pstmt.setString(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                pw = rs.getString("PW");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    pw = rs.getString("PW");
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -63,11 +65,12 @@ public class UsersDB {
 
         try (Connection conn = DBManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
-             
+
             pstmt.setString(1, id);
-            ResultSet rs = pstmt.executeQuery();
-            if (rs.next()) {
-                nName = rs.getString("NICKNAME");
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    nName = rs.getString("NICKNAME");
+                }
             }
         } catch (SQLException e) {
             e.printStackTrace();

@@ -3,126 +3,188 @@ package Front.View;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
 
 import Front.App.Navigator;
 import Front.Resize.Resize;
 import Front.Server.*;
 
+class PlaceholderTextField extends JTextField {
+    private String placeholder;
+    private Color placeholderColor = Color.GRAY;
+    private Color textColor = Color.WHITE;
+    private Color backgroundColor = Color.darkGray;
+
+    public PlaceholderTextField(String placeholder) {
+        this.placeholder = placeholder;
+        setText(placeholder);
+        setBackground(backgroundColor);
+        setForeground(placeholderColor);
+
+        addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (getText().equals(placeholder)) {
+                    setText("");
+                    setForeground(textColor);
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (getText().isEmpty()) {
+                    setText(placeholder);
+                    setForeground(placeholderColor);
+                }
+            }
+        });
+    }
+
+    // 실제 입력된 텍스트만 가져오기
+    public String getActualText() {
+        String text = getText();
+        return text.equals(placeholder) ? "" : text;
+    }
+}
+
+class PlaceholderPasswordField extends JPasswordField {
+    private Color placeholderColor = Color.GRAY;
+    private Color textColor = Color.WHITE;
+    private Color backgroundColor = Color.darkGray;
+    private boolean isPlaceholder = true;
+
+    public PlaceholderPasswordField(String placeholder) {
+        setText(placeholder);
+        setForeground(placeholderColor);
+        setBackground(backgroundColor);
+        setEchoChar((char) 0); // 플레이스홀더는 평문으로 표시
+
+        addFocusListener(new FocusAdapter() {
+            @Override
+            public void focusGained(FocusEvent e) {
+                if (isPlaceholder) {
+                    setText("");
+                    setForeground(textColor);
+                    setEchoChar('●'); // 비밀번호 마스킹 활성화
+                    isPlaceholder = false;
+                }
+            }
+
+            @Override
+            public void focusLost(FocusEvent e) {
+                if (getPassword().length == 0) {
+                    setEchoChar((char) 0); // 마스킹 비활성화
+                    setText(placeholder);
+                    setForeground(placeholderColor);
+                    isPlaceholder = true;
+                }
+            }
+        });
+    }
+
+    public String getActualText() {
+        return isPlaceholder ? "" : String.valueOf(getPassword());
+    }
+}
+
 // 배경 패널
 class LoginBacgroudPanel extends JPanel {
     LoginBacgroudPanel() {
         setOpaque(false);
-        setLayout(null);
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         ImageIcon logo = new ImageIcon(Resize.resizeImage("Front/.src/hongik_emblem_line.png", 250, 250, 1));
         JLabel bgLabel = new JLabel(logo);
-        bgLabel.setBounds(125, 100, 250, 250);
+        bgLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
         add(bgLabel);
     }
 }
 
-// 폼 패널
-class LoginFormPanel extends JPanel {
-    LoginFormPanel(Navigator nav) {
+// 입력 패널
+class LoginFieldPanel extends JPanel {
+    void loginListener(Navigator nav, PlaceholderTextField id_field, PlaceholderPasswordField pw_field) {
+        String id = id_field.getActualText();
+        String pw = new String(pw_field.getActualText());
+        InfoServerClient client = new InfoServerClient();
+
+        if (id.isEmpty() || pw.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "ID 또는 PW를 입력해주세요.",
+                    "경고", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        String nName = client.LoginRequest(id, pw);
+        if (nName == null) {
+            JOptionPane.showMessageDialog(
+                    null,
+                    "사용자 정보를 찾을 수 없습니다.",
+                    "경고", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+
+        nav.openMain(id, nName);
+    }
+
+    LoginFieldPanel(Navigator nav) {
         setOpaque(false);
-        setLayout(null); // 현재 좌표기반 유지 (추후 GridBagLayout 권장)
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        JTextField id_field = new JTextField(15);
-        id_field.setBounds(130, 400,240, 50);
-        id_field.setBackground(Color.darkGray);
-        id_field.setForeground(Color.white);
+        PlaceholderTextField id_field = new PlaceholderTextField("ID");
         id_field.setFont(new Font("Arial", Font.PLAIN, 16));
-        id_field.setBorder(new EmptyBorder(0, 30, 0, 0));
+        id_field.setPreferredSize(new Dimension(247, 55));
+        id_field.setMaximumSize(new Dimension(247, 55));
+        id_field.setMinimumSize(new Dimension(247, 55));
+        id_field.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JLabel id_label = new JLabel("ID: ");
-        id_label.setFont(new Font("Arial", Font.PLAIN, 16));
-
-        id_label.setForeground(Color.gray);
-        id_label.setBounds(135, 400,240, 50);
-
-        add(id_label);
-        add(id_field);
-
-        JPasswordField pw_field = new JPasswordField(12);
-        pw_field.setBounds(130, 455,240, 50);
-        pw_field.setBackground(Color.darkGray);
-        pw_field.setForeground(Color.white);
+        PlaceholderPasswordField pw_field = new PlaceholderPasswordField("PW");
         pw_field.setFont(new Font("Arial", Font.PLAIN, 16));
-        pw_field.setBorder(BorderFactory.createCompoundBorder(id_field.getBorder(),new EmptyBorder(0, 23, 0, 0)));
-        pw_field.setBorder(new EmptyBorder(0, 40, 0, 0));
+        pw_field.setPreferredSize(new Dimension(247, 55));
+        pw_field.setMaximumSize(new Dimension(247, 55));
+        pw_field.setMinimumSize(new Dimension(247, 55));
+        pw_field.setAlignmentX(Component.CENTER_ALIGNMENT);
 
+        id_field.addActionListener(e -> loginListener(nav, id_field, pw_field));
+        pw_field.addActionListener(e -> loginListener(nav, id_field, pw_field));
 
-        JLabel pw_label = new JLabel("PW: ");
-        pw_label.setFont(new Font("Arial", Font.PLAIN, 16));
-
-        pw_label.setForeground(Color.gray);
-        pw_label.setBounds(135, 455,240, 50);
-
-        add(pw_label);
+        add(id_field);
         add(pw_field);
+        add(Box.createVerticalStrut(20));
 
-          
         final JButton loginBtn = new JButton("Log in");
-        loginBtn.setBounds(130, 550, 240, 40);
         loginBtn.setBackground(Color.decode("#1E90FF"));
         loginBtn.setForeground(Color.WHITE);
         loginBtn.setFont(new Font("Arial", Font.BOLD, 20));
-        loginBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK, 0));
         loginBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        loginBtn.setBorder(new EmptyBorder(0, 0, 0, 0));
+
+        loginBtn.setPreferredSize(new Dimension(240, 43));
+        loginBtn.setMaximumSize(new Dimension(240, 43));
+        loginBtn.setMinimumSize(new Dimension(240, 43));
+        loginBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         loginBtn.setOpaque(true);
         loginBtn.setContentAreaFilled(true);
         loginBtn.setBorderPainted(false);
         loginBtn.setFocusPainted(false);
 
-        loginBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                String id = id_field.getText();
-                String pw = new String(pw_field.getPassword());
-                InfoServerClient client = new InfoServerClient();
-
-                String nName = client.LoginRequest(id, pw);
-                if (nName == null) {JOptionPane.showMessageDialog(
-                    null,
-                    "사용자 정보를 찾을 수 없습니다.",
-                    "경고", JOptionPane.WARNING_MESSAGE);
-                    return;
-                }
-
-                nav.openMain(id, nName);
-
-            }
-        });
+        loginBtn.addActionListener(e -> loginListener(nav, id_field, pw_field));
 
         add(loginBtn);
-    }
-}
+        add(Box.createVerticalStrut(25));
 
-// 하단 패널
-class LoginBottomPanel extends JPanel {
-    final JButton signUpBtn = new JButton("Sign up");
-
-    LoginBottomPanel(Navigator nav) {
-        setOpaque(false);
-        setLayout(null);
-
-        signUpBtn.setBounds(185, 610, 130, 25);
+        final JButton signUpBtn = new JButton("Sign up");
         signUpBtn.setForeground(Color.decode("#1362B0"));
         signUpBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        signUpBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         signUpBtn.setOpaque(true);
         signUpBtn.setContentAreaFilled(false);
         signUpBtn.setBorderPainted(false);
         signUpBtn.setFocusPainted(false);
 
-        signUpBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                nav.openSignup();
-            }
-        });
+        signUpBtn.addActionListener(e -> nav.openSignup());
 
         add(signUpBtn);
     }
@@ -130,27 +192,23 @@ class LoginBottomPanel extends JPanel {
 
 // 프레임 : 서브 패널 조립
 public class LoginView extends JFrame {
-    public LoginView(Navigator nav){
-        final LoginBacgroudPanel loginBacgroudPanel = new LoginBacgroudPanel();
-        final LoginFormPanel formPanel = new LoginFormPanel(nav);
-        final LoginBottomPanel loginBottomPanel = new LoginBottomPanel(nav);
- 
+    public LoginView(Navigator nav) {
         setTitle("HongStar");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 800);
 
+        final LoginBacgroudPanel loginBacgroudPanel = new LoginBacgroudPanel();
+        final LoginFieldPanel formPanel = new LoginFieldPanel(nav);
+
         Container c = getContentPane();
         c.setBackground(Color.decode("#141414"));
-        c.setLayout(null); // 현재 구조 유지
+        c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
 
-        // 각 패널의 배치(현재 절대 좌표이므로 프레임 크기 기준으로 겹쳐 배치)
-        loginBacgroudPanel.setBounds(0, 0, 500, 400);
-        formPanel.setBounds(0, 0, 500, 800);
-        loginBottomPanel.setBounds(0, 0, 500, 800);
-
+        c.add(Box.createVerticalGlue());
         c.add(loginBacgroudPanel);
+        c.add(Box.createVerticalStrut(20));
         c.add(formPanel);
-        c.add(loginBottomPanel);
+        c.add(Box.createVerticalGlue());
 
         setLocationRelativeTo(null);
         setVisible(true);

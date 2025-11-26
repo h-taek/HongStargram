@@ -5,6 +5,9 @@ import java.awt.*;
 import java.util.*;
 import java.util.List;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import Front.App.Navigator;
 import Front.Resize.Resize;
 import Front.Server.*;
@@ -105,7 +108,7 @@ class Comment extends JPanel {
                 server.DeleteCommentRequest(comment_id);
 
                 Map<String, Object> post = server.GetPostRequest(center.post_id);
-                List<Map<String, String>> comments = (List<Map<String, String>>) post.get("comments");
+                List<Map<String, String>> comments = new Gson().fromJson(post.get("comments").toString(), new TypeToken<List<Map<String, String>>>(){}.getType());
 
                 center.refresh(comments);
             });
@@ -237,7 +240,7 @@ class CommentBottomPanel extends JPanel{
             }
 
         Map<String, Object> post = server.GetPostRequest(post_id);
-        List<Map<String, String>> comments = (List<Map<String, String>>) post.get("comments");
+        List<Map<String, String>> comments = new Gson().fromJson(post.get("comments").toString(), new TypeToken<List<Map<String, String>>>(){}.getType());
         center.refresh(comments);
     }
 }

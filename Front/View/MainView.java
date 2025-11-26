@@ -12,6 +12,9 @@ import java.io.*;
 import javax.imageio.ImageIO;
 import java.nio.file.*;
 
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+
 import Front.App.Navigator;
 import Front.Resize.Resize;
 import Front.Server.*;
@@ -139,7 +142,9 @@ class Post extends JPanel {
 
         setOpaque(false);
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
+        setBorder(BorderFactory.createCompoundBorder(
+            BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#242424")),
+            BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         JPanel topPanel = new JPanel();
         topPanel.setOpaque(false);
@@ -194,7 +199,7 @@ class Post extends JPanel {
         bottom_btn_panel.setOpaque(false);
         bottom_btn_panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 3));
 
-        List<String> likes = (List<String>) post.get("likes");
+        List<String> likes = new Gson().fromJson(post.get("likes").toString(), new TypeToken<List<String>>(){}.getType());
         ImageIcon like_icon;
         if (likes.contains(id)) {
             like_icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_icon.png", 25, 25, 1));
@@ -238,7 +243,7 @@ class Post extends JPanel {
         comment_btn.setFocusPainted(false);
         comment_btn.setOpaque(false);
 
-        List<Map<String, String>> comments = (List<Map<String, String>>) post.get("comments");
+        List<Map<String, String>> comments = new Gson().fromJson(post.get("comments").toString(), new TypeToken<List<Map<String, String>>>(){}.getType());
         JLabel comment_count_label = new JLabel(comments.size() + "");
         comment_count_label.setFont(new Font("Arial", Font.BOLD, 18));
         comment_count_label.setForeground(Color.white);
@@ -286,6 +291,7 @@ class MainTopPanel extends JPanel {
         JLabel topLabel = new JLabel("Hongstargram");
         topLabel.setFont(new Font("Arial", Font.BOLD, 20));
         topLabel.setForeground(Color.white);
+        topLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
         add(topLabel, BorderLayout.WEST);
 

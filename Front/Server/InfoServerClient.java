@@ -14,312 +14,345 @@ public class InfoServerClient {
     static int port = 8003;
 
     public int SignupRequest(String id, String pw, String nName) {
-        try{
+        HttpURLConnection connect = null;
+
+        try {
             String urlStr = "http://" + hostIp + ":" + port + "/Signup";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
-            
-            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+
+            connect = (HttpURLConnection) url.openConnection();
             connect.setRequestMethod("POST");
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-            String json = "{\"id\":\""+ id + "\", \"pw\":\"" + pw + "\", \"nName\":\"" + nName + "\"}";
+            String json = "{\"id\":\"" + id + "\", \"pw\":\"" + pw + "\", \"nName\":\"" + nName + "\"}";
 
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
-            
             int code = connect.getResponseCode();
-        
-            connect.disconnect();
-            return code;    
+            return code;
         }
         catch (IOException e) {
             e.printStackTrace();
             System.out.println("ServerClient.SignupRequest Err!");
             return -1;
         }
-        
+        finally {
+            if (connect != null) {
+                connect.disconnect();
+            }
+        }
     }
 
     public String LoginRequest(String id, String pw) {
-        try{
+        HttpURLConnection connect = null;
+        try {
             String urlStr = "http://" + hostIp + ":" + port + "/Login";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
-            
-            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+
+            connect = (HttpURLConnection) url.openConnection();
             connect.setRequestMethod("POST");
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-            String json = "{\"id\":\""+ id + "\", \"pw\":\"" + pw + "\"}";
+            String json = "{\"id\":\"" + id + "\", \"pw\":\"" + pw + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
 
             int code = connect.getResponseCode();
-            String nName;
             if (code == 999) {
-                nName = null;
+                return null;
             }
-            else {
-                BufferedReader br = new BufferedReader(new InputStreamReader(connect.getInputStream(), StandardCharsets.UTF_8));
+
+            StringBuilder response = new StringBuilder();
+            try (InputStream inputStream = connect.getInputStream();
+                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 String line;
-                StringBuilder response = new StringBuilder();
                 while ((line = br.readLine()) != null) {
                     response.append(line);
                 }
-                
-                nName = response.toString();
-                br.close();
             }
-
-            connect.disconnect();
-            return nName;    
+            String nName = response.toString();
+            return nName;
         }
         catch (Exception e) {
             e.printStackTrace();
             System.out.println("ServerClient.LoginRequest Err!");
             return null;
         }
+        finally {
+            if (connect != null) {
+                connect.disconnect();
+            }
+        }
     }
 
     public String GetNNameRequest(String id) {
-        try{
+        HttpURLConnection connect = null;
+
+        try {
             String urlStr = "http://" + hostIp + ":" + port + "/GetNName";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
-            
-            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+
+            connect = (HttpURLConnection) url.openConnection();
             connect.setRequestMethod("POST");
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
 
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(id.getBytes(StandardCharsets.UTF_8));
-            }        
-            
-            int code = connect.getResponseCode();
-            String nName;
-            if (code == 999) {
-                nName = null;
             }
-            else {
-                BufferedReader br = new BufferedReader(new InputStreamReader(connect.getInputStream(), StandardCharsets.UTF_8));
+
+            int code = connect.getResponseCode();
+            if (code == 999) {
+                return null;
+            }
+
+            StringBuilder response = new StringBuilder();
+            try (InputStream inputStream = connect.getInputStream();
+                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 String line;
-                StringBuilder response = new StringBuilder();
                 while ((line = br.readLine()) != null) {
                     response.append(line);
                 }
-                
-                nName = response.toString();
-                br.close();
             }
-            
-            connect.disconnect();
-            return nName;    
+            String nName = response.toString();
+            return nName;
         }
         catch (Exception e) {
             e.printStackTrace();
             System.out.println("InfoServerClient.GetNNameRequest Err!");
             return null;
         }
-    }    
+        finally {
+            if (connect != null) {
+                connect.disconnect();
+            }
+        }
+    }
 
     public Map<Integer, List<String>> GetChatListRequest(String id) {
-        try{
+        HttpURLConnection connect = null;
+
+        try {
             String urlStr = "http://" + hostIp + ":" + port + "/GetChatList";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
-            
-            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+
+            connect = (HttpURLConnection) url.openConnection();
             connect.setRequestMethod("POST");
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
 
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(id.getBytes(StandardCharsets.UTF_8));
-            }        
-            
-            BufferedReader br = new BufferedReader(new InputStreamReader(connect.getInputStream(), StandardCharsets.UTF_8));
-            String line;
+            }
+
             StringBuilder response = new StringBuilder();
-            while ((line = br.readLine()) != null) {
-                response.append(line);
+            try (InputStream inputStream = connect.getInputStream();
+                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
             }
 
             Gson gson = new Gson();
-            Map<Integer, List<String>> chat_list = gson.fromJson(response.toString(), new TypeToken<Map<Integer, List<String>>>(){}.getType());
-
-            br.close();
-            connect.disconnect();
-            return chat_list;    
+            Map<Integer, List<String>> chat_list = gson.fromJson(response.toString(),new TypeToken<Map<Integer, List<String>>>(){}.getType());
+            return chat_list;
         }
         catch (Exception e) {
             e.printStackTrace();
             System.out.println("InfoServerClient.GetChatListRequest Err!");
             return null;
+        } finally {
+            if (connect != null) {
+                connect.disconnect();
+            }
         }
     }
-        
-    public String [] GetFriendListRequest (String id) {
-        try{
+
+    public String[] GetFriendListRequest(String id) {
+        HttpURLConnection connect = null;
+
+        try {
             String urlStr = "http://" + hostIp + ":" + port + "/GetFriendList";
-            
+
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
-            
-            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+
+            connect = (HttpURLConnection) url.openConnection();
             connect.setRequestMethod("POST");
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
 
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(id.getBytes(StandardCharsets.UTF_8));
-            }        
-            
-            BufferedReader br = new BufferedReader(new InputStreamReader(connect.getInputStream(), StandardCharsets.UTF_8));
-            String line;
-            StringBuilder response = new StringBuilder();
-            while ((line = br.readLine()) != null) {
-                response.append(line);
             }
-            // System.out.println(response);
-            Gson gson = new Gson();
-            String [] friend_list = gson.fromJson(response.toString(), String[].class);
 
-            br.close();
-            connect.disconnect();
-            return friend_list;    
+            StringBuilder response = new StringBuilder();
+            try (InputStream inputStream = connect.getInputStream();
+                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
+            }
+            Gson gson = new Gson();
+            String[] friend_list = gson.fromJson(response.toString(), String[].class);
+            return friend_list;
         }
         catch (Exception e) {
             e.printStackTrace();
             System.out.println("InfoServerClient.GetFriendListRequest Err!");
             return null;
         }
+        finally {
+            if (connect != null) {
+                connect.disconnect();
+            }
+        }
     }
 
-    public Map<String, String []> GetFriendRequestRequest (String id) {
-        try{
+    public Map<String, String[]> GetFriendRequestRequest(String id) {
+        HttpURLConnection connect = null;
+
+        try {
             String urlStr = "http://" + hostIp + ":" + port + "/GetFriendRequest";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
-            
-            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+
+            connect = (HttpURLConnection) url.openConnection();
             connect.setRequestMethod("POST");
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "text/plain; charset=UTF-8");
 
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(id.getBytes(StandardCharsets.UTF_8));
-            }        
-            
-            BufferedReader br = new BufferedReader(new InputStreamReader(connect.getInputStream(), StandardCharsets.UTF_8));
-            String line;
+            }
+
             StringBuilder response = new StringBuilder();
-            while ((line = br.readLine()) != null) {
-                response.append(line);
+            try (InputStream inputStream = connect.getInputStream();
+                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
             }
             Gson gson = new Gson();
-            Map<String, String []> friend_request_response = gson.fromJson(response.toString(), new TypeToken<Map<String, String []>>(){}.getType());
-
-
-            br.close();
-            connect.disconnect();
-            return friend_request_response;    
-        }
+            Map<String, String[]> friend_request_response = gson.fromJson(response.toString(),new TypeToken<Map<String, String[]>>(){}.getType());
+            return friend_request_response;
+        } 
         catch (Exception e) {
             e.printStackTrace();
             System.out.println("InfoServerClient.GetFriendRequestRequest Err!");
             return null;
+        } 
+        finally {
+            if (connect != null) {
+                connect.disconnect();
+            }
         }
     }
 
     public void FriendRequestRequest(String from_id, String to_id, boolean flag) {
-        try{
+        HttpURLConnection connect = null;
+
+        try {
             String urlStr = "http://" + hostIp + ":" + port + "/FriendRequest";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
 
-            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+            connect = (HttpURLConnection) url.openConnection();
             connect.setRequestMethod("POST");
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
             String flag_str = (flag) ? "true" : "false";
 
-            String json = "{\"from_id\":\""+ from_id + "\", \"to_id\":\"" + to_id + "\", \"flag\":\"" + flag_str + "\"}";
+            String json = "{\"from_id\":\"" + from_id + "\", \"to_id\":\"" + to_id + "\", \"flag\":\"" + flag_str + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
-
             connect.getResponseCode();
-            connect.disconnect();
-            return;    
-        }
+        } 
         catch (Exception e) {
-            System.out.println("InfoServerClient.FriendRequestRequest Err!");
             e.printStackTrace();
-            return;
+            System.out.println("InfoServerClient.FriendRequestRequest Err!");
+        } 
+        finally {
+            if (connect != null) {
+                connect.disconnect();
+            }
         }
     }
 
     public void FriendRequestResponseRequest(String my_id, String your_id, boolean flag) {
-        try{
+        HttpURLConnection connect = null;
+
+        try {
             String urlStr = "http://" + hostIp + ":" + port + "/FriendRequestResponse";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
-            
-            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+
+            connect = (HttpURLConnection) url.openConnection();
             connect.setRequestMethod("POST");
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
             String flag_str = flag ? "true" : "false";
 
-            String json = "{\"my_id\":\""+ my_id + "\", \"your_id\":\"" + your_id + "\", \"flag\":\"" + flag_str + "\"}";
+            String json = "{\"my_id\":\"" + my_id + "\", \"your_id\":\"" + your_id + "\", \"flag\":\"" + flag_str + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
-
             connect.getResponseCode();
-            connect.disconnect();
-            return;    
-        }
+        } 
         catch (Exception e) {
-            System.out.println("ServerClient.FriendRequestResponseRequest Err!");
             e.printStackTrace();
-            return;
+            System.out.println("ServerClient.FriendRequestResponseRequest Err!");
+        }
+        finally {
+            if (connect != null) {
+                connect.disconnect();
+            }
         }
     }
 
     public InfoServerClient() {
-        try {    
+        HttpURLConnection connect = null;
+
+        try {
             String urlStr = "http://" + hostIp + ":" + port + "/test";
             URI uri = URI.create(urlStr);
             URL url = uri.toURL();
 
-            HttpURLConnection connect = (HttpURLConnection) url.openConnection();
+            connect = (HttpURLConnection) url.openConnection();
             connect.setRequestMethod("GET");
-                        
-            BufferedReader br = new BufferedReader(
-                new InputStreamReader(connect.getInputStream(), StandardCharsets.UTF_8)
-            );
 
-            String line;
             StringBuilder response = new StringBuilder();
-            while ((line = br.readLine()) != null) {
-                response.append(line);
+            try (InputStream inputStream = connect.getInputStream();
+                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                String line;
+                while ((line = br.readLine()) != null) {
+                    response.append(line);
+                }
             }
             System.out.println(response.toString());
-
-            br.close();
-            connect.disconnect();
-        } catch (IOException e) {
+        } 
+        catch (IOException e) {
             e.printStackTrace();
             System.out.println("InfoServerClient ConErr!");
+        } 
+        finally {
+            if (connect != null) {
+                connect.disconnect();
+            }
         }
     }
 }

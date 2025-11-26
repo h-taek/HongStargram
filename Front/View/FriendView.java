@@ -1,18 +1,16 @@
 package Front.View;
 
 import java.util.*;
-
 import javax.swing.*;
-import javax.swing.Timer;
-
-import Front.App.Navigator;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import Front.App.Navigator;
 import Front.Server.*;
+import Front.Resize.*;
 
+// 상단 메뉴 패널
 class FreindTopPanel extends JPanel {
     Navigator nav;
     String id;
@@ -20,39 +18,37 @@ class FreindTopPanel extends JPanel {
     InfoServerClient server;
     
 
-    public FreindTopPanel(Navigator nav, String id, String nName, InfoServerClient server) {
-        this.nav = nav;
-        this.id = id;
+    public FreindTopPanel(TotFreindPanel totFreindPanel, String nName) {
+        this.nav = totFreindPanel.nav;
+        this.id = totFreindPanel.id;
         this.nName = nName;
-        this.server = server;
+        this.server = totFreindPanel.server;
 
-        setLayout(new BorderLayout(5, 0));
+        setLayout(new BoxLayout(this, BoxLayout.X_AXIS));
         setBackground(Color.decode("#242424"));
 
         Icon icon = new ImageIcon("Front/.src/back_arrow_icon.png");
         JButton back_btn = new JButton(icon);
-        back_btn.setContentAreaFilled(false);   // 버튼의 배경을 칠하지 않게    
+        back_btn.setBackground(Color.decode("#242424"));
         back_btn.setBorderPainted(false);       // 테두리(border) 없애기
         back_btn.setFocusPainted(false);        // 포커스(점선 테두리) 표시 제거
-        back_btn.setOpaque(false);       // 투명도 완전하게 만들기 (배경색 투명)
-
+        
         back_btn.addActionListener(e -> nav.openMain(id, nName));
         
-        add(back_btn, BorderLayout.WEST);
+        add(back_btn);
+        add(Box.createHorizontalGlue());
+
 
         icon = new ImageIcon("Front/.src/add_friend_icon.png");
         JButton add_friend_btn = new JButton(icon);
-        add_friend_btn.setContentAreaFilled(false);   // 버튼의 배경을 칠하지 않게    
+        add_friend_btn.setBackground(Color.decode("#242424"));
         add_friend_btn.setBorderPainted(false);       // 테두리(border) 없애기
         add_friend_btn.setFocusPainted(false);        // 포커스(점선 테두리) 표시 제거
-        add_friend_btn.setOpaque(false);       // 투명도 완전하게 만들기 (배경색 투명)
 
         JDialogBtnListener dialog = new JDialogBtnListener("친구로 추가할 ID를 입력하세요");
         dialog.btn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                // String se_nName = server.GetNNameRequest(id);
-                
                 String receiver = dialog.field.getText();
                 String re_nName = server.GetNNameRequest(receiver);
                 if (re_nName == null || id.equals(receiver)) {
@@ -82,15 +78,22 @@ class FreindTopPanel extends JPanel {
                 }
 
                 server.FriendRequestRequest(id, receiver, true);
-                JOptionPane.showMessageDialog(null, "요청 성공", 
-                            "", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(null, "요청 성공", "", JOptionPane.INFORMATION_MESSAGE);
+                totFreindPanel.refresh();
                 dialog.dialog.dispose();
             }
         });
-
         add_friend_btn.addActionListener(dialog);
+        add(add_friend_btn);
 
-        add(add_friend_btn, BorderLayout.EAST);
+
+        icon = new ImageIcon(Resize.resizeImage("Front/.src/restart_icon.png", 30, 30, 1));
+        JButton refresh_btn = new JButton(icon);
+        refresh_btn.setBackground(Color.decode("#242424"));
+        refresh_btn.setBorderPainted(false);       // 테두리(border) 없애기
+        refresh_btn.setFocusPainted(false);        // 포커스(점선 테두리) 표시 제거
+        refresh_btn.addActionListener(e -> totFreindPanel.refresh());
+        add(refresh_btn);
     }
 }
 
@@ -146,6 +149,7 @@ class FriendPanel extends JPanel{
     }
 }
 
+// 친구 요청 응답
 class FriendRequestPanel extends FriendPanel {
     Navigator nav;
     String my_id;
@@ -153,35 +157,40 @@ class FriendRequestPanel extends FriendPanel {
     String name;
     InfoServerClient server;
 
-    FriendRequestPanel(Navigator nav, String my_id, String your_id, String name, InfoServerClient server) {
-        super(nav, your_id, name);
-        this.nav = nav;
-        this.my_id = my_id;
+    FriendRequestPanel(TotFreindPanel totFreindPanel, String your_id, String name) {
+        super(totFreindPanel.nav, your_id, name);
+        this.nav = totFreindPanel.nav;
+        this.my_id = totFreindPanel.id;
         this.your_id = your_id;
         this.name = name;
-        this.server = server;
+        this.server = totFreindPanel.server;
 
         RoundButton acceptBtn = new RoundButton("수락", 15);
         acceptBtn.setFont(new Font("Arial", Font.PLAIN, 12));
         acceptBtn.setMargin(new Insets(0, 0, 0, 0));
-        acceptBtn.setBounds(350, 25, 60, 30);
         acceptBtn.setBackground(Color.decode("#1E90FF"));
         acceptBtn.setForeground(Color.white);
         acceptBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
-        acceptBtn.addActionListener(e -> server.FriendRequestResponseRequest(my_id, your_id, true));
+        acceptBtn.addActionListener(e -> {
+            server.FriendRequestResponseRequest(my_id, your_id, true);
+            totFreindPanel.refresh();
+        });
 
         RoundButton refuseBtn = new RoundButton("거절", 15);
         refuseBtn.setFont(new Font("Arial", Font.PLAIN, 12));
         refuseBtn.setMargin(new Insets(0, 0, 0, 0));
-        refuseBtn.setBounds(420, 25, 60, 30);
         refuseBtn.setBackground(Color.GRAY);
         refuseBtn.setForeground(Color.white);
         refuseBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
-        refuseBtn.addActionListener(e -> server.FriendRequestResponseRequest(my_id, your_id, false));
+        refuseBtn.addActionListener(e -> {
+            server.FriendRequestResponseRequest(my_id, your_id, false);
+            totFreindPanel.refresh();
+        });
 
         JPanel buttonPanel = makeBtnPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.add(acceptBtn);
         buttonPanel.add(refuseBtn);
         
@@ -189,6 +198,7 @@ class FriendRequestPanel extends FriendPanel {
     }
 }
 
+// 친구 추가 
 class FriendAddPanel extends FriendPanel {
     Navigator nav;
     String my_id;
@@ -196,27 +206,28 @@ class FriendAddPanel extends FriendPanel {
     String name;
     InfoServerClient server;
 
-    FriendAddPanel(Navigator nav, String my_id, String your_id, String name, InfoServerClient server) {
-        super(nav, your_id, name);
-        this.nav = nav;
-        this.my_id = my_id;
+    FriendAddPanel(TotFreindPanel totFreindPanel, String your_id, String name) {
+        super(totFreindPanel.nav, your_id, name);
+        this.nav = totFreindPanel.nav;
+        this.my_id = totFreindPanel.id;
         this.your_id = your_id;
         this.name = name;
-        this.server = server;
+        this.server = totFreindPanel.server;
 
         RoundButton addBtn = new RoundButton("취소", 15);
         addBtn.setFont(new Font("Arial", Font.PLAIN, 12));
         addBtn.setMargin(new Insets(0, 0, 0, 0));
-        addBtn.setBounds(420, 25, 60, 30);
         addBtn.setBackground(Color.GRAY);
         addBtn.setForeground(Color.white);
         addBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         
         addBtn.addActionListener(e -> {
             server.FriendRequestRequest(my_id, your_id, false);
+            totFreindPanel.refresh();
         });
         
         JPanel buttonPanel = makeBtnPanel();
+        buttonPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 0));
         buttonPanel.add(addBtn);
 
         add(buttonPanel, BorderLayout.EAST);
@@ -227,10 +238,9 @@ class TotFreindPanel extends JPanel {
     private JPanel listPanel;
     private JScrollPane scrollPane;
 
-    private Navigator nav;
-    private String id;
-    
-    private InfoServerClient server;
+    Navigator nav;
+    String id;
+    InfoServerClient server;
 
     TotFreindPanel(Navigator nav, String id, InfoServerClient server) {
         this.nav = nav;
@@ -248,9 +258,7 @@ class TotFreindPanel extends JPanel {
         scrollPane.setBorder(null);
         add(scrollPane, BorderLayout.CENTER);
         
-        refreshMessages();
-        // 3초마다 갱신
-        new Timer(3000, e -> refreshMessages()).start();
+        refresh();
     }
 
     class ListLabelPanel extends JPanel {
@@ -270,7 +278,7 @@ class TotFreindPanel extends JPanel {
         }
     }
 
-    private void refreshMessages() {
+    void refresh() {
         listPanel.removeAll(); 
         
         ListLabelPanel label = new ListLabelPanel("친구 목록");
@@ -296,7 +304,7 @@ class TotFreindPanel extends JPanel {
             if (ids != null) {
                 for (String id_ : ids) {
                     String nName = server.GetNNameRequest(id_);
-                    FriendRequestPanel friendRequestPanel = new FriendRequestPanel(nav, id, id_, nName, server);
+                    FriendRequestPanel friendRequestPanel = new FriendRequestPanel(this, id_, nName);
                     listPanel.add(friendRequestPanel);
                 }
             }
@@ -311,7 +319,7 @@ class TotFreindPanel extends JPanel {
             if (ids != null) {
                 for (String id_ : ids) {
                     String nName = server.GetNNameRequest(id_);
-                    FriendAddPanel friendRequestPanel = new FriendAddPanel(nav, id, id_, nName, server);
+                    FriendAddPanel friendRequestPanel = new FriendAddPanel(this, id_, nName);
                     listPanel.add(friendRequestPanel);
                 }
             }
@@ -340,11 +348,11 @@ public class FriendView extends JFrame {
         setSize(500, 800);
         setBackground(Color.decode("#141414"));
 
-        final FreindTopPanel top = new FreindTopPanel(nav, id, nName, server);
-        add(top, BorderLayout.NORTH);
-
         final TotFreindPanel friendList = new TotFreindPanel(nav, id, server);
         add(friendList, BorderLayout.CENTER);
+
+        final FreindTopPanel top = new FreindTopPanel(friendList, nName);
+        add(top, BorderLayout.NORTH);
         
         setLocationRelativeTo(null);
         setVisible(true);

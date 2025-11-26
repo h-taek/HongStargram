@@ -6,7 +6,6 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -326,12 +325,8 @@ public class TotMessageView extends JFrame {
         setLayout(new BorderLayout());
 
         TotMessagePanel totPanel = new TotMessagePanel(nav, id, nName, server);
-        totPanel.setBounds(0, 0, 500, 800);
-
         TotMessegeBtnPanel btnPanel = new TotMessegeBtnPanel(nav, id, nName, server);
-        btnPanel.setBounds(0, 0, 500, 800);
 
-        // 레이어 우선순위 설정
         add(totPanel, BorderLayout.CENTER);
         add(btnPanel, BorderLayout.NORTH);
 
