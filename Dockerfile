@@ -1,8 +1,17 @@
 FROM eclipse-temurin:21-jdk
 WORKDIR /app
-COPY myserver.jar /app/myserver.jar
-COPY lib/ /app/lib/
-VOLUME ["/app/image"]
+
+# Copy project structure
+COPY Back /app/Back
+COPY lib /app/lib
+
+# Compile the server code
+RUN javac -encoding UTF-8 -cp "lib/*" -d out Back/API/*.java Back/DB/*.java
+
+# Create volume for images
+VOLUME ["/app/Back/image"]
+
 ENV TZ=Asia/Seoul
 EXPOSE 8003 8004 8005
-ENTRYPOINT ["java","-jar","/app/myserver.jar"]
+
+ENTRYPOINT ["java", "-cp", "out:lib/*", "Back.API.Server"]

@@ -143,8 +143,8 @@ class Post extends JPanel {
         setOpaque(false);
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#242424")),
-            BorderFactory.createEmptyBorder(15, 15, 15, 15)));
+                BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#242424")),
+                BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         JPanel topPanel = new JPanel();
         topPanel.setOpaque(false);
@@ -243,7 +243,7 @@ class Post extends JPanel {
         comment_btn.setFocusPainted(false);
         comment_btn.setOpaque(false);
 
-        List<Map<String, String>> comments = new Gson().fromJson(post.get("comments").toString(), new TypeToken<List<Map<String, String>>>(){}.getType());
+        List<Map<String, String>> comments = (List<Map<String, String>>) post.get("comments");
         JLabel comment_count_label = new JLabel(comments.size() + "");
         comment_count_label.setFont(new Font("Arial", Font.BOLD, 18));
         comment_count_label.setForeground(Color.white);

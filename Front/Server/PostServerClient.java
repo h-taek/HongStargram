@@ -32,7 +32,8 @@ public class PostServerClient {
 
             StringBuilder response = new StringBuilder();
             try (InputStream inputStream = connect.getInputStream();
-                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                    BufferedReader br = new BufferedReader(
+                            new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     response.append(line);
@@ -41,13 +42,11 @@ public class PostServerClient {
             Gson gson = new Gson();
             String[] readable_post = gson.fromJson(response.toString(), String[].class);
             return readable_post;
-        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("PostServerClient.GetReadablePostRequest Err!");
             return null;
-        } 
-        finally {
+        } finally {
             if (connect != null) {
                 connect.disconnect();
             }
@@ -74,17 +73,22 @@ public class PostServerClient {
 
             StringBuilder response = new StringBuilder();
             try (InputStream inputStream = connect.getInputStream();
-                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {                
+                    BufferedReader br = new BufferedReader(
+                            new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     response.append(line);
                 }
             }
+            System.out.println(response);
             Gson gson = new Gson();
-            Map<String, Object> post = gson.fromJson(response.toString(), new TypeToken<Map<String, Object>>(){}.getType());
+            Map<String, Object> post = gson.fromJson(response.toString(), new TypeToken<Map<String, Object>>() {
+            }.getType());
             post.put("post_id", ((Number) post.get("post_id")).intValue());
 
-            List<Map<String, Object>> comments = gson.fromJson(post.get("comments").toString(), new TypeToken<List<Map<String, Object>>>(){}.getType());
+            // comments는 이미 파싱된 List 객체이므로 직접 캐스팅
+            // @SuppressWarnings("unchecked")
+            List<Map<String, Object>> comments = (List<Map<String, Object>>) post.get("comments");
             for (Map<String, Object> comment : comments) {
                 if (comment.containsKey("comment_id")) {
                     comment.put("comment_id", String.valueOf(((Number) comment.get("comment_id")).intValue()));
@@ -95,14 +99,12 @@ public class PostServerClient {
             }
             return post;
 
-        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("PostServerClient.GetPostRequest Err!");
             return null;
 
-        } 
-        finally {
+        } finally {
             if (connect != null) {
                 connect.disconnect();
             }
@@ -122,17 +124,16 @@ public class PostServerClient {
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-            String json = "{\"post_id\":\"" + post_id + "\", \"user_id\":\"" + id + "\", \"comment\":\"" + comment + "\"}";
+            String json = "{\"post_id\":\"" + post_id + "\", \"user_id\":\"" + id + "\", \"comment\":\"" + comment
+                    + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
             connect.getResponseCode();
-        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("PostServerClient.AddCommentRequest Err!");
-        }
-        finally {
+        } finally {
             if (connect != null) {
                 connect.disconnect();
             }
@@ -156,12 +157,10 @@ public class PostServerClient {
                 os.write(comment_id.getBytes(StandardCharsets.UTF_8));
             }
             connect.getResponseCode();
-        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("PostServerClient.DeleteCommentRequest Err!");
-        }
-        finally {
+        } finally {
             if (connect != null) {
                 connect.disconnect();
             }
@@ -181,17 +180,16 @@ public class PostServerClient {
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-            String json = "{\"post_id\":\"" + post_id + "\", \"user_id\":\"" + user_id + "\", \"flag\":\"" + flag + "\"}";
+            String json = "{\"post_id\":\"" + post_id + "\", \"user_id\":\"" + user_id + "\", \"flag\":\"" + flag
+                    + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
             connect.getResponseCode();
-        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("PostServerClient.LikeRequest Err!");
-        }
-        finally {
+        } finally {
             if (connect != null) {
                 connect.disconnect();
             }
@@ -200,7 +198,7 @@ public class PostServerClient {
 
     public void AddPostRequest(String user_id, String content, String img) {
         HttpURLConnection connect = null;
-        
+
         try {
             String urlStr = "http://" + hostIp + ":" + port + "/AddPost";
             URI uri = URI.create(urlStr);
@@ -211,17 +209,16 @@ public class PostServerClient {
             connect.setDoOutput(true);
             connect.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
 
-            String json = "{\"user_id\":\"" + user_id + "\", \"content\":\"" + content + "\", \"image\":\"" + img + "\"}";
+            String json = "{\"user_id\":\"" + user_id + "\", \"content\":\"" + content + "\", \"image\":\"" + img
+                    + "\"}";
             try (OutputStream os = connect.getOutputStream()) {
                 os.write(json.getBytes(StandardCharsets.UTF_8));
             }
             connect.getResponseCode();
-        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("PostServerClient.AddPostRequest Err!");
-        }
-        finally {
+        } finally {
             if (connect != null) {
                 connect.disconnect();
             }
@@ -230,7 +227,7 @@ public class PostServerClient {
 
     public void DeletePostRequest(String post_id) {
         HttpURLConnection connect = null;
-        
+
         try {
             String urlStr = "http://" + hostIp + ":" + port + "/DeletePost";
             URI uri = URI.create(urlStr);
@@ -245,12 +242,10 @@ public class PostServerClient {
                 os.write(post_id.getBytes(StandardCharsets.UTF_8));
             }
             connect.getResponseCode();
-        } 
-        catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
             System.out.println("PostServerClient.DeletePostRequest Err!");
-        }
-        finally {
+        } finally {
             if (connect != null) {
                 connect.disconnect();
             }
@@ -270,19 +265,18 @@ public class PostServerClient {
 
             StringBuilder response = new StringBuilder();
             try (InputStream inputStream = connect.getInputStream();
-                 BufferedReader br = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+                    BufferedReader br = new BufferedReader(
+                            new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
                 String line;
                 while ((line = br.readLine()) != null) {
                     response.append(line);
                 }
             }
             System.out.println(response.toString());
-        } 
-        catch (IOException e) {
+        } catch (IOException e) {
             e.printStackTrace();
             System.out.println("PostServerClient ConErr!");
-        }
-        finally {
+        } finally {
             if (connect != null) {
                 connect.disconnect();
             }
