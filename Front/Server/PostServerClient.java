@@ -80,7 +80,6 @@ public class PostServerClient {
                     response.append(line);
                 }
             }
-            System.out.println(response);
             Gson gson = new Gson();
             Map<String, Object> post = gson.fromJson(response.toString(), new TypeToken<Map<String, Object>>() {
             }.getType());
