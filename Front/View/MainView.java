@@ -28,21 +28,21 @@ class PostDialogBtnListener extends JPanel implements ActionListener {
     public PostDialogBtnListener() {
         setPreferredSize(new Dimension(500, 400));
         setLayout(new BorderLayout(0, 10));
-        setBackground(Color.decode("#141414"));
+        setBackground(Color.WHITE);
         setBorder(BorderFactory.createEmptyBorder(15, 20, 10, 20));
 
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.X_AXIS));
-        panel.setBackground(Color.decode("#141414"));
+        panel.setBackground(Color.WHITE);
 
         JLabel label = new JLabel("파일 경로...");
-        label.setForeground(Color.white);
+        label.setForeground(Color.decode("#262626"));
         label.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
         label.setOpaque(false);
 
         btn = new RoundButton("파일 선택", 10);
-        btn.setBackground(Color.decode("#373737"));
-        btn.setForeground(Color.WHITE);
+        btn.setBackground(Color.decode("#EFEFEF"));
+        btn.setForeground(Color.decode("#262626"));
         chooser = new JFileChooser();
         FileNameExtensionFilter filter = new FileNameExtensionFilter("Image File", "jpg", "jpeg", "png");
         btn.addActionListener(e -> {
@@ -59,18 +59,20 @@ class PostDialogBtnListener extends JPanel implements ActionListener {
 
         area = new JTextArea();
         area.setLineWrap(true);
-        area.setBackground(Color.DARK_GRAY);
-        area.setForeground(Color.white);
-        area.setCaretColor(Color.WHITE);
-        area.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+        area.setBackground(Color.decode("#FAFAFA"));
+        area.setForeground(Color.decode("#262626"));
+        area.setCaretColor(Color.decode("#262626"));
+        area.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.decode("#DBDBDB"), 1),
+                BorderFactory.createEmptyBorder(8, 8, 8, 8)));
 
         area.setOpaque(true);
 
         add(area, BorderLayout.CENTER);
 
         btn = new RoundButton("확인", 10);
-        btn.setBackground(Color.decode("#1E90FF"));
-        btn.setForeground(Color.white);
+        btn.setBackground(Color.decode("#0095F6"));
+        btn.setForeground(Color.WHITE);
 
         JPanel temp_panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
         temp_panel.setOpaque(false);
@@ -140,22 +142,24 @@ class Post extends JPanel {
         this.post = post;
         this.id = id;
 
-        setOpaque(false);
+        setOpaque(true);
+        setBackground(Color.WHITE);
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createCompoundBorder(
-                BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#242424")),
+                BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")),
                 BorderFactory.createEmptyBorder(15, 15, 15, 15)));
 
         JPanel topPanel = new JPanel();
-        topPanel.setOpaque(false);
+        topPanel.setOpaque(true);
+        topPanel.setBackground(Color.WHITE);
         topPanel.setLayout(new BorderLayout());
         topPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 10, 0));
 
         String user_id = post.get("user_id").toString();
         JLabel label = new JLabel("@ " + user_id);
         label.setOpaque(false);
-        label.setFont(new Font("Arial", Font.BOLD, 18));
-        label.setForeground(Color.white);
+        label.setFont(new Font("Arial", Font.BOLD, 16));
+        label.setForeground(Color.decode("#262626"));
         topPanel.add(label, BorderLayout.WEST);
 
         String post_id = post.get("post_id").toString();
@@ -182,7 +186,7 @@ class Post extends JPanel {
         // -----------------------------------------------------
         JPanel panel = new JPanel();
         panel.setLayout(new GridBagLayout());
-        panel.setBackground(Color.decode("#141414"));
+        panel.setBackground(Color.WHITE);
 
         ImagePanel imagePanel = new ImagePanel(post.get("image").toString());
 
@@ -192,14 +196,15 @@ class Post extends JPanel {
 
         // -----------------------------------------------------
         JPanel bottomPanel = new JPanel();
-        bottomPanel.setBackground(Color.decode("#141414"));
+        bottomPanel.setBackground(Color.WHITE);
         bottomPanel.setLayout(new BorderLayout());
 
         JPanel bottom_btn_panel = new JPanel();
         bottom_btn_panel.setOpaque(false);
         bottom_btn_panel.setLayout(new FlowLayout(FlowLayout.LEFT, 0, 3));
 
-        List<String> likes = new Gson().fromJson(post.get("likes").toString(), new TypeToken<List<String>>(){}.getType());
+        List<String> likes = new Gson().fromJson(post.get("likes").toString(), new TypeToken<List<String>>() {
+        }.getType());
         ImageIcon like_icon;
         if (likes.contains(id)) {
             like_icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_icon.png", 25, 25, 1));
@@ -213,8 +218,8 @@ class Post extends JPanel {
         like_btn.setFocusPainted(false);
         like_btn.setOpaque(false);
         JLabel like_count_label = new JLabel(likes.size() + "   ");
-        like_count_label.setFont(new Font("Arial", Font.BOLD, 18));
-        like_count_label.setForeground(Color.white);
+        like_count_label.setFont(new Font("Arial", Font.PLAIN, 14));
+        like_count_label.setForeground(Color.decode("#262626"));
 
         like_btn.addActionListener(e -> {
             if (likes.contains(id)) {
@@ -245,8 +250,8 @@ class Post extends JPanel {
 
         List<Map<String, String>> comments = (List<Map<String, String>>) post.get("comments");
         JLabel comment_count_label = new JLabel(comments.size() + "");
-        comment_count_label.setFont(new Font("Arial", Font.BOLD, 18));
-        comment_count_label.setForeground(Color.white);
+        comment_count_label.setFont(new Font("Arial", Font.PLAIN, 14));
+        comment_count_label.setForeground(Color.decode("#262626"));
 
         comment_btn.addActionListener(e -> nav.openComments(comments, id, nName, post.get("post_id").toString()));
 
@@ -260,8 +265,8 @@ class Post extends JPanel {
         content_area.setWrapStyleWord(true);
         content_area.setEditable(false);
         content_area.setFont(new Font("Arial", Font.PLAIN, 14));
-        content_area.setForeground(Color.white);
-        content_area.setBackground(Color.decode("#141414"));
+        content_area.setForeground(Color.decode("#262626"));
+        content_area.setBackground(Color.WHITE);
         content_area.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
         bottomPanel.add(content_area, BorderLayout.CENTER);
 
@@ -284,13 +289,13 @@ class MainTopPanel extends JPanel {
         this.nName = nName;
         this.center = center;
 
-        setBackground(Color.decode("#141414"));
+        setBackground(Color.decode("#FAFAFA"));
         setLayout(new BorderLayout());
-        setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.DARK_GRAY));
+        setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")));
 
         JLabel topLabel = new JLabel("Hongstargram");
         topLabel.setFont(new Font("Arial", Font.BOLD, 20));
-        topLabel.setForeground(Color.white);
+        topLabel.setForeground(Color.decode("#262626"));
         topLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
         add(topLabel, BorderLayout.WEST);
@@ -301,7 +306,7 @@ class MainTopPanel extends JPanel {
 
         ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/paper_airplane.png", s + 5, s + 5, 1));
         JButton messegeBtn = new JButton(icon);
-        messegeBtn.setBackground(Color.decode("#141414"));
+        messegeBtn.setBackground(Color.decode("#FAFAFA"));
         messegeBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         messegeBtn.setOpaque(true);
@@ -313,9 +318,9 @@ class MainTopPanel extends JPanel {
             nav.openTotMessage(id, nName);
         });
 
-        icon = new ImageIcon(Resize.resizeImage("Front/.src/group_icon.png", s, s, 1));
+        icon = new ImageIcon(Resize.resizeImage("Front/.src/group_icon_black.png", s, s, 1));
         JButton friendBtn = new JButton(icon);
-        friendBtn.setBackground(Color.decode("#141414"));
+        friendBtn.setBackground(Color.decode("#FAFAFA"));
         friendBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         friendBtn.setOpaque(true);
@@ -327,9 +332,9 @@ class MainTopPanel extends JPanel {
             nav.openFriend(id, nName);
         });
 
-        icon = new ImageIcon(Resize.resizeImage("Front/.src/restart_icon.png", s - 5, s - 5, 1));
+        icon = new ImageIcon(Resize.resizeImage("Front/.src/restart_icon_black.png", s - 5, s - 5, 1));
         JButton refreshBtn = new JButton(icon);
-        refreshBtn.setBackground(Color.decode("#141414"));
+        refreshBtn.setBackground(Color.decode("#FAFAFA"));
         refreshBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         refreshBtn.setOpaque(true);
@@ -341,9 +346,9 @@ class MainTopPanel extends JPanel {
             center.refresh();
         });
 
-        icon = new ImageIcon(Resize.resizeImage("Front/.src/new_post_icon.png", s, s, 1));
+        icon = new ImageIcon(Resize.resizeImage("Front/.src/new_post_icon_black.png", s, s, 1));
         JButton postBtn = new JButton(icon);
-        postBtn.setBackground(Color.decode("#141414"));
+        postBtn.setBackground(Color.decode("#FAFAFA"));
         postBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         postBtn.setOpaque(true);
@@ -423,15 +428,15 @@ class MainCenterPanel extends JPanel {
         this.server = server;
 
         setLayout(new BorderLayout());
-        setBackground(Color.decode("#141414"));
+        setBackground(Color.WHITE);
 
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
-        listPanel.setBackground(Color.decode("#141414"));
+        listPanel.setBackground(Color.WHITE);
 
         scrollPane = new JScrollPane(listPanel);
         scrollPane.setBorder(null);
-        scrollPane.setBackground(Color.decode("#141414"));
-        scrollPane.getViewport().setBackground(Color.decode("#141414"));
+        scrollPane.setBackground(Color.WHITE);
+        scrollPane.getViewport().setBackground(Color.WHITE);
         add(scrollPane, BorderLayout.CENTER);
 
         refresh();
@@ -452,12 +457,12 @@ class MainCenterPanel extends JPanel {
             // 게시글이 없을 때 안내 메시지 표시
             JPanel emptyPanel = new JPanel();
             emptyPanel.setLayout(new GridBagLayout());
-            emptyPanel.setBackground(Color.decode("#141414"));
+            emptyPanel.setBackground(Color.WHITE);
             emptyPanel.setPreferredSize(new Dimension(500, 600));
 
             JLabel emptyLabel = new JLabel("No Post... :(");
-            emptyLabel.setFont(new Font("Arial", Font.BOLD, 24));
-            emptyLabel.setForeground(Color.GRAY);
+            emptyLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+            emptyLabel.setForeground(Color.decode("#8E8E8E"));
 
             emptyPanel.add(emptyLabel);
             listPanel.add(emptyPanel);
@@ -474,7 +479,7 @@ public class MainView extends JFrame {
         setTitle("HongStar");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 800);
-        setBackground(Color.decode("#141414"));
+        setBackground(Color.WHITE);
         setLayout(new BorderLayout());
 
         MainCenterPanel mainCenterPanel = new MainCenterPanel(nav, id, nName, server);

@@ -8,11 +8,14 @@ sqlplus user1/00000000@htaeky.iptime.org:8000/FREEPDB1
 htaeky.iptime.org:8002  
 htaeky.iptime.org:8003  
 htaeky.iptime.org:8004  
+htaeky.iptime.org:8005 (NEW - Routine)
+htaeky.iptime.org:8006 (NEW - Location)
 
 
 ## 2. 추가 기능  
-캘린더 루틴 + AI  
-(?????????)
+- ✅ 루틴 관리 달력
+- ✅ 위치 기반 알람
+- ✅ 모던 UI 개선 (인스타그램 스타일)
 
 
 ## 3. Database Schema (Oracle) 
@@ -82,3 +85,42 @@ htaeky.iptime.org:8004
 | SENDER_ID  | VARCHAR2(50)    | 보낸 사람 (FK)   |
 | MESSAGE    | CLOB            | 메시지 내용       |
 | SENT_AT    | DATE            | 보낸 시간         |
+
+### 11. ROUTINES (루틴) ✨ NEW
+| 컬럼명      | 타입            | 설명                  |
+|-------------|-----------------|----------------------|
+| ROUTINE_ID  | NUMBER          | 루틴 ID (PK)         |
+| USER_ID     | VARCHAR2(50)    | 유저 ID (FK)         |
+| TITLE       | VARCHAR2(200)   | 루틴 제목            |
+| DESCRIPTION | VARCHAR2(1000)  | 루틴 설명            |
+| COLOR       | VARCHAR2(20)    | 색상                 |
+| CREATED_AT  | DATE            | 생성 시간            |
+
+### 12. ROUTINE_EVENTS (루틴 이벤트) ✨ NEW
+| 컬럼명         | 타입            | 설명                  |
+|----------------|-----------------|----------------------|
+| EVENT_ID       | NUMBER          | 이벤트 ID (PK)       |
+| ROUTINE_ID     | NUMBER          | 루틴 ID (FK)         |
+| EVENT_DATE     | DATE            | 일정 날짜            |
+| EVENT_TIME     | VARCHAR2(10)    | 일정 시간            |
+| IS_COMPLETED   | CHAR(1)         | 완료 여부 (Y/N)      |
+| COMPLETED_AT   | DATE            | 완료 시간            |
+
+### 13. USER_LOCATIONS (사용자 위치) ✨ NEW
+| 컬럼명         | 타입            | 설명                  |
+|----------------|-----------------|----------------------|
+| USER_ID        | VARCHAR2(50)    | 유저 ID (PK, FK)     |
+| LATITUDE       | NUMBER(10,6)    | 위도                 |
+| LONGITUDE      | NUMBER(10,6)    | 경도                 |
+| LOCATION_NAME  | VARCHAR2(200)   | 위치 이름            |
+| UPDATED_AT     | DATE            | 업데이트 시간        |
+
+### 14. LOCATION_ALERTS (위치 알람) ✨ NEW
+| 컬럼명           | 타입            | 설명                  |
+|------------------|-----------------|----------------------|
+| ALERT_ID         | NUMBER          | 알람 ID (PK)         |
+| USER_ID          | VARCHAR2(50)    | 유저 ID (FK)         |
+| TARGET_USER_ID   | VARCHAR2(50)    | 대상 유저 (FK)       |
+| ALERT_DISTANCE   | NUMBER(10,2)    | 알람 거리 (미터)     |
+| IS_ACTIVE        | CHAR(1)         | 활성 여부 (Y/N)      |
+| CREATED_AT       | DATE            | 생성 시간            |

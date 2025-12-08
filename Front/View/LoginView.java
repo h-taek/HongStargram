@@ -11,15 +11,20 @@ import Front.Server.*;
 
 class PlaceholderTextField extends JTextField {
     private String placeholder;
-    private Color placeholderColor = Color.GRAY;
-    private Color textColor = Color.WHITE;
-    private Color backgroundColor = Color.darkGray;
+    private Color placeholderColor = Color.decode("#8E8E8E");
+    private Color textColor = Color.decode("#262626");
+    private Color backgroundColor = Color.WHITE;
+    private Color borderColor = Color.decode("#DBDBDB");
 
     public PlaceholderTextField(String placeholder) {
         this.placeholder = placeholder;
         setText(placeholder);
         setBackground(backgroundColor);
         setForeground(placeholderColor);
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(borderColor, 1),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+        setFont(new Font("Arial", Font.PLAIN, 14));
 
         addFocusListener(new FocusAdapter() {
             @Override
@@ -28,6 +33,9 @@ class PlaceholderTextField extends JTextField {
                     setText("");
                     setForeground(textColor);
                 }
+                setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(Color.decode("#A8A8A8"), 1),
+                        BorderFactory.createEmptyBorder(8, 12, 8, 12)));
             }
 
             @Override
@@ -36,6 +44,9 @@ class PlaceholderTextField extends JTextField {
                     setText(placeholder);
                     setForeground(placeholderColor);
                 }
+                setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor, 1),
+                        BorderFactory.createEmptyBorder(8, 12, 8, 12)));
             }
         });
     }
@@ -48,9 +59,10 @@ class PlaceholderTextField extends JTextField {
 }
 
 class PlaceholderPasswordField extends JPasswordField {
-    private Color placeholderColor = Color.GRAY;
-    private Color textColor = Color.WHITE;
-    private Color backgroundColor = Color.darkGray;
+    private Color placeholderColor = Color.decode("#8E8E8E");
+    private Color textColor = Color.decode("#262626");
+    private Color backgroundColor = Color.WHITE;
+    private Color borderColor = Color.decode("#DBDBDB");
     private boolean isPlaceholder = true;
 
     public PlaceholderPasswordField(String placeholder) {
@@ -58,6 +70,10 @@ class PlaceholderPasswordField extends JPasswordField {
         setForeground(placeholderColor);
         setBackground(backgroundColor);
         setEchoChar((char) 0); // 플레이스홀더는 평문으로 표시
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(borderColor, 1),
+                BorderFactory.createEmptyBorder(8, 12, 8, 12)));
+        setFont(new Font("Arial", Font.PLAIN, 14));
 
         addFocusListener(new FocusAdapter() {
             @Override
@@ -68,6 +84,9 @@ class PlaceholderPasswordField extends JPasswordField {
                     setEchoChar('●'); // 비밀번호 마스킹 활성화
                     isPlaceholder = false;
                 }
+                setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(Color.decode("#A8A8A8"), 1),
+                        BorderFactory.createEmptyBorder(8, 12, 8, 12)));
             }
 
             @Override
@@ -78,6 +97,9 @@ class PlaceholderPasswordField extends JPasswordField {
                     setForeground(placeholderColor);
                     isPlaceholder = true;
                 }
+                setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(borderColor, 1),
+                        BorderFactory.createEmptyBorder(8, 12, 8, 12)));
             }
         });
     }
@@ -149,12 +171,12 @@ class LoginFieldPanel extends JPanel {
 
         add(id_field);
         add(pw_field);
-        add(Box.createVerticalStrut(20));
+        add(Box.createVerticalStrut(15));
 
         final JButton loginBtn = new JButton("Log in");
-        loginBtn.setBackground(Color.decode("#1E90FF"));
+        loginBtn.setBackground(Color.decode("#0095F6"));
         loginBtn.setForeground(Color.WHITE);
-        loginBtn.setFont(new Font("Arial", Font.BOLD, 20));
+        loginBtn.setFont(new Font("Arial", Font.BOLD, 14));
         loginBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         loginBtn.setBorder(new EmptyBorder(0, 0, 0, 0));
 
@@ -171,10 +193,10 @@ class LoginFieldPanel extends JPanel {
         loginBtn.addActionListener(e -> loginListener(nav, id_field, pw_field));
 
         add(loginBtn);
-        add(Box.createVerticalStrut(25));
+        add(Box.createVerticalStrut(20));
 
         final JButton signUpBtn = new JButton("Sign up");
-        signUpBtn.setForeground(Color.decode("#1362B0"));
+        signUpBtn.setForeground(Color.decode("#0095F6"));
         signUpBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         signUpBtn.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -201,7 +223,7 @@ public class LoginView extends JFrame {
         final LoginFieldPanel formPanel = new LoginFieldPanel(nav);
 
         Container c = getContentPane();
-        c.setBackground(Color.decode("#141414"));
+        c.setBackground(Color.WHITE);
         c.setLayout(new BoxLayout(c, BoxLayout.Y_AXIS));
 
         c.add(Box.createVerticalGlue());

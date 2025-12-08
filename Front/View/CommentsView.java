@@ -22,7 +22,9 @@ class Label extends JLabel {
             Insets pin = p.getInsets();
             availW = p.getWidth() - pin.left - pin.right;
         }
-        if (availW <= 0) {availW = 480;} // 초기값
+        if (availW <= 0) {
+            availW = 480;
+        } // 초기값
         super.setSize(new Dimension(availW, Short.MAX_VALUE));
 
         FontMetrics fm = getFontMetrics(getFont());
@@ -51,7 +53,9 @@ class TextArea extends JTextArea {
             Insets pin = p.getInsets();
             availW = p.getWidth() - pin.left - pin.right;
         }
-        if (availW <= 0) {availW = 480;} // 초기값
+        if (availW <= 0) {
+            availW = 480;
+        } // 초기값
         super.setSize(new Dimension(availW, Short.MAX_VALUE));
 
         FontMetrics fm = getFontMetrics(getFont());
@@ -67,13 +71,13 @@ class TextArea extends JTextArea {
 }
 
 class Comment extends JPanel {
-    Comment (Map<String, String> comment, PostServerClient server, CommentCenterPanel center) {
+    Comment(Map<String, String> comment, PostServerClient server, CommentCenterPanel center) {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
         setBorder(
                 BorderFactory.createCompoundBorder(
-                        BorderFactory.createMatteBorder(0, 0, 1, 0, Color.darkGray),
+                        BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")),
                         BorderFactory.createEmptyBorder(5, 5, 5, 5)));
-        setBackground(Color.decode("#141414"));
+        setBackground(Color.WHITE);
 
         String user_id = comment.get("user_id");
         String msg = comment.get("content");
@@ -81,11 +85,11 @@ class Comment extends JPanel {
 
         JPanel top_panel = new JPanel();
         top_panel.setLayout(new BoxLayout(top_panel, BoxLayout.X_AXIS));
-        top_panel.setBackground(Color.decode("#141414"));
+        top_panel.setBackground(Color.WHITE);
 
         Label id_label = new Label("@ " + user_id);
-        id_label.setForeground(Color.white);
-        id_label.setFont(new Font("Arial", Font.BOLD, 16));
+        id_label.setForeground(Color.decode("#262626"));
+        id_label.setFont(new Font("Arial", Font.BOLD, 14));
         id_label.setBorder(BorderFactory.createEmptyBorder(0, 10, 5, 0));
 
         top_panel.add(id_label);
@@ -114,11 +118,9 @@ class Comment extends JPanel {
 
         // ---------------------------------------------------
         TextArea msg_area = new TextArea(msg);
-        msg_area.setForeground(Color.white);
-        msg_area.setBackground(Color.decode("#141414"));
-        msg_area.setFont(new Font("Arial", Font.PLAIN, 18));
-        msg_area.setBorder(BorderFactory.createEmptyBorder(0, 8, 5, 0));
-        msg_area.setForeground(Color.WHITE);
+        msg_area.setForeground(Color.decode("#262626"));
+        msg_area.setBackground(Color.WHITE);
+        msg_area.setFont(new Font("Arial", Font.PLAIN, 14));
 
         msg_area.setLineWrap(true);
         msg_area.setWrapStyleWord(true);
@@ -141,10 +143,10 @@ class CommentCenterPanel extends JPanel {
         this.server = server;
 
         setLayout(new BorderLayout());
-        setBackground(Color.decode("#141414"));
+        setBackground(Color.WHITE);
 
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
-        listPanel.setBackground(Color.decode("#141414"));
+        listPanel.setBackground(Color.WHITE);
 
         scrollPane = new JScrollPane(listPanel);
         scrollPane.setBorder(null);
@@ -169,9 +171,10 @@ class CommentCenterPanel extends JPanel {
 class CommentTopPanel extends JPanel {
     CommentTopPanel(Navigator nav, String id, String nName) {
         setLayout(new BorderLayout());
-        setBackground(Color.decode("#242424"));
+        setBackground(Color.decode("#FAFAFA"));
+        setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")));
 
-        ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/back_arrow_icon.png", 35, 35, 1));
+        ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/back_arrow_icon_black.png", 35, 35, 1));
         JButton btn = new JButton(icon);
         btn.setOpaque(false);
         btn.setContentAreaFilled(false);
@@ -186,8 +189,8 @@ class CommentTopPanel extends JPanel {
         panel.setOpaque(false);
 
         JLabel label = new JLabel("Comments");
-        label.setFont(new Font("Arial", Font.BOLD, 20));
-        label.setForeground(Color.white);
+        label.setFont(new Font("Arial", Font.BOLD, 18));
+        label.setForeground(Color.decode("#262626"));
 
         panel.add(label);
         add(panel, BorderLayout.CENTER);
@@ -207,21 +210,25 @@ class CommentBottomPanel extends JPanel {
 
         setLayout(new BorderLayout(6, 0));
         setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        setBackground(Color.decode("#141414"));
+        setBackground(Color.WHITE);
 
         field = new RoundTextField(15);
         field.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        field.setBackground(Color.DARK_GRAY);
-        field.setForeground(Color.WHITE);
-        field.setCaretColor(Color.WHITE);
-        field.addActionListener(e -> {listner();});
+        field.setBackground(Color.decode("#FAFAFA"));
+        field.setForeground(Color.decode("#262626"));
+        field.setCaretColor(Color.decode("#262626"));
+        field.addActionListener(e -> {
+            listner();
+        });
         add(field, BorderLayout.CENTER);
 
         RoundButton btn = new RoundButton("확인", 15);
         btn.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
-        btn.setBackground(Color.DARK_GRAY);
+        btn.setBackground(Color.decode("#0095F6"));
         btn.setForeground(Color.WHITE);
-        btn.addActionListener(e -> {listner();});
+        btn.addActionListener(e -> {
+            listner();
+        });
         add(btn, BorderLayout.EAST);
     }
 
@@ -245,7 +252,7 @@ public class CommentsView extends JFrame {
         setTitle("HongStar");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(500, 800);
-        setBackground(Color.decode("#141414"));
+        setBackground(Color.WHITE);
         setLayout(new BorderLayout());
 
         CommentCenterPanel commentCenterPanel = new CommentCenterPanel(comments, id, post_id, server);

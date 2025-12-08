@@ -16,13 +16,35 @@ public class Server {
             System.out.printf("Server starting on local ip: %s\n", host_ip);
 
             new Thread(() -> {
-                try { new InfoServerHost(); }
-                catch (IOException e) { e.printStackTrace(); }
+                try {
+                    new InfoServerHost();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }).start();
-            new Thread(() -> {new ChatServerHost();}).start();
             new Thread(() -> {
-                try { new PostServerHost(); }
-                catch (IOException e) { e.printStackTrace(); }
+                new ChatServerHost();
+            }).start();
+            new Thread(() -> {
+                try {
+                    new PostServerHost();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            new Thread(() -> {
+                try {
+                    new RoutineServerHost();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            new Thread(() -> {
+                try {
+                    new LocationServerHost();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }).start();
 
         } catch (Exception e) {
