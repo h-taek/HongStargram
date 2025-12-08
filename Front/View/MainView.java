@@ -375,8 +375,40 @@ class MainTopPanel extends JPanel {
 
         postBtn.addActionListener(dialog);
 
+        // 루틴 관리 버튼 추가
+        icon = new ImageIcon(Resize.resizeImage("Front/.src/chat_icon_black.png", s, s, 1));
+        JButton routineBtn = new JButton(icon);
+        routineBtn.setBackground(Color.decode("#FAFAFA"));
+        routineBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        routineBtn.setOpaque(true);
+        routineBtn.setContentAreaFilled(true);
+        routineBtn.setBorderPainted(false);
+        routineBtn.setFocusPainted(false);
+
+        routineBtn.addActionListener(e -> {
+            nav.openRoutine(id, nName);
+        });
+
+        // 위치 알람 버튼 추가
+        icon = new ImageIcon(Resize.resizeImage("Front/.src/person_icon_black.png", s, s, 1));
+        JButton locationBtn = new JButton(icon);
+        locationBtn.setBackground(Color.decode("#FAFAFA"));
+        locationBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        locationBtn.setOpaque(true);
+        locationBtn.setContentAreaFilled(true);
+        locationBtn.setBorderPainted(false);
+        locationBtn.setFocusPainted(false);
+
+        locationBtn.addActionListener(e -> {
+            nav.openLocation(id, nName);
+        });
+
         btnPanel.add(postBtn);
         btnPanel.add(refreshBtn);
+        btnPanel.add(routineBtn);
+        btnPanel.add(locationBtn);
         btnPanel.add(friendBtn);
         btnPanel.add(messegeBtn);
 

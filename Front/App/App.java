@@ -54,4 +54,14 @@ public class App implements Navigator {
     public void openComments(List<Map<String, String>> comments, String id, String nName, String post_id) {
         show(new CommentsView(this, comments, id, nName, post_id));
     }
+
+    @Override
+    public void openRoutine(String id, String nName) {
+        show(new RoutineView(this, id, nName));
+    }
+
+    @Override
+    public void openLocation(String id, String nName) {
+        show(new LocationView(this, id, nName));
+    }
 }
