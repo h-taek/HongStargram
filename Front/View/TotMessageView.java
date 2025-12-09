@@ -1,4 +1,4 @@
-package Front.View;
+﻿package Front.View;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -137,7 +137,7 @@ class MessagePanel extends JPanel {
 
         btn.setBackground(Color.WHITE);
         btn.setForeground(Color.decode("#262626"));
-        btn.setFont(new Font("Arial", Font.PLAIN, 16));
+        btn.setFont(new Font("Noto Sans KR", Font.PLAIN, 16));
 
         btn.setPreferredSize(new Dimension(0, 60));
         btn.setMaximumSize(new Dimension(Integer.MAX_VALUE, 60));

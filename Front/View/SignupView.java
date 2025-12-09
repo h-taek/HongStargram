@@ -1,4 +1,4 @@
-package Front.View;
+﻿package Front.View;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -57,17 +57,17 @@ class SignupInputPanel extends JPanel {
         setMaximumSize(new Dimension(300, Integer.MAX_VALUE));
 
         JLabel text = new JLabel("Sign Up");
-        text.setFont(new Font("Arial", Font.BOLD, 30));
+        text.setFont(new Font("Noto Sans KR", Font.BOLD, 30));
         text.setForeground(Color.white);
         text.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         JLabel id_label = new JLabel("ID");
         id_label.setForeground(Color.white);
-        id_label.setFont(new Font("Arial", Font.BOLD, 25));
+        id_label.setFont(new Font("Noto Sans KR", Font.BOLD, 25));
         id_label.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         PlaceholderTextField id_field = new PlaceholderTextField("ID");
-        id_field.setFont(new Font("Arial", Font.PLAIN, 16));
+        id_field.setFont(new Font("Noto Sans KR", Font.PLAIN, 16));
         id_field.setBorder(new EmptyBorder(0, 3, 0, 0));
         id_field.setPreferredSize(new Dimension(300, 50));
         id_field.setMaximumSize(new Dimension(300, 50));
@@ -76,11 +76,11 @@ class SignupInputPanel extends JPanel {
 
         JLabel pw_label = new JLabel("PW");
         pw_label.setForeground(Color.white);
-        pw_label.setFont(new Font("Arial", Font.BOLD, 25));
+        pw_label.setFont(new Font("Noto Sans KR", Font.BOLD, 25));
         pw_label.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         PlaceholderPasswordField pw_field = new PlaceholderPasswordField("PW");
-        pw_field.setFont(new Font("Arial", Font.PLAIN, 16));
+        pw_field.setFont(new Font("Noto Sans KR", Font.PLAIN, 16));
         pw_field.setBorder(new EmptyBorder(0, 3, 0, 0));
         pw_field.setPreferredSize(new Dimension(300, 50));
         pw_field.setMaximumSize(new Dimension(300, 50));
@@ -89,11 +89,11 @@ class SignupInputPanel extends JPanel {
 
         JLabel pw2_label = new JLabel("PW2");
         pw2_label.setForeground(Color.white);
-        pw2_label.setFont(new Font("Arial", Font.BOLD, 25));
+        pw2_label.setFont(new Font("Noto Sans KR", Font.BOLD, 25));
         pw2_label.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         PlaceholderPasswordField pw2_field = new PlaceholderPasswordField("PW2");
-        pw2_field.setFont(new Font("Arial", Font.PLAIN, 16));
+        pw2_field.setFont(new Font("Noto Sans KR", Font.PLAIN, 16));
         pw2_field.setBorder(new EmptyBorder(0, 3, 0, 0));
         pw2_field.setPreferredSize(new Dimension(300, 50));
         pw2_field.setMaximumSize(new Dimension(300, 50));
@@ -102,11 +102,11 @@ class SignupInputPanel extends JPanel {
 
         JLabel nName_label = new JLabel("Nick Name");
         nName_label.setForeground(Color.white);
-        nName_label.setFont(new Font("Arial", Font.BOLD, 25));
+        nName_label.setFont(new Font("Noto Sans KR", Font.BOLD, 25));
         nName_label.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         PlaceholderTextField nName_field = new PlaceholderTextField("Nick Name");
-        nName_field.setFont(new Font("Arial", Font.PLAIN, 16));
+        nName_field.setFont(new Font("Noto Sans KR", Font.PLAIN, 16));
         nName_field.setBorder(new EmptyBorder(0, 3, 0, 0));
         nName_field.setPreferredSize(new Dimension(300, 50));
         nName_field.setMaximumSize(new Dimension(300, 50));
@@ -146,7 +146,7 @@ class SignupInputPanel extends JPanel {
         JButton signupBtn = new JButton("Sign up");
         signupBtn.setBackground(Color.decode("#1E90FF"));
         signupBtn.setForeground(Color.WHITE);
-        signupBtn.setFont(new Font("Arial", Font.BOLD, 20));
+        signupBtn.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
         signupBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
 
         signupBtn.setOpaque(true);

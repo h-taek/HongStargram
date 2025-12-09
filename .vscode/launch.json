@@ -1,0 +1,23 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Server",
+            "request": "launch",
+            "mainClass": "Back.API.Server",
+            "projectName": "HongStargram_25e64250",
+            "vmArgs": "-Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8",
+            "console": "integratedTerminal"
+        },
+        {
+            "type": "java",
+            "name": "App",
+            "request": "launch",
+            "mainClass": "Front.App.App",
+            "projectName": "HongStargram_25e64250",
+            "vmArgs": "-Dfile.encoding=UTF-8 -Dconsole.encoding=UTF-8",
+            "console": "integratedTerminal"
+        }
+    ]
+}

@@ -1,4 +1,4 @@
-package Front.View;
+﻿package Front.View;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -158,7 +158,7 @@ class Post extends JPanel {
         String user_id = post.get("user_id").toString();
         JLabel label = new JLabel("@ " + user_id);
         label.setOpaque(false);
-        label.setFont(new Font("Arial", Font.BOLD, 16));
+        label.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
         label.setForeground(Color.decode("#262626"));
         topPanel.add(label, BorderLayout.WEST);
 
@@ -218,7 +218,7 @@ class Post extends JPanel {
         like_btn.setFocusPainted(false);
         like_btn.setOpaque(false);
         JLabel like_count_label = new JLabel(likes.size() + "   ");
-        like_count_label.setFont(new Font("Arial", Font.PLAIN, 14));
+        like_count_label.setFont(new Font("Noto Sans KR", Font.PLAIN, 14));
         like_count_label.setForeground(Color.decode("#262626"));
 
         like_btn.addActionListener(e -> {
@@ -250,7 +250,7 @@ class Post extends JPanel {
 
         List<Map<String, String>> comments = (List<Map<String, String>>) post.get("comments");
         JLabel comment_count_label = new JLabel(comments.size() + "");
-        comment_count_label.setFont(new Font("Arial", Font.PLAIN, 14));
+        comment_count_label.setFont(new Font("Noto Sans KR", Font.PLAIN, 14));
         comment_count_label.setForeground(Color.decode("#262626"));
 
         comment_btn.addActionListener(e -> nav.openComments(comments, id, nName, post.get("post_id").toString()));
@@ -264,7 +264,7 @@ class Post extends JPanel {
         content_area.setLineWrap(true);
         content_area.setWrapStyleWord(true);
         content_area.setEditable(false);
-        content_area.setFont(new Font("Arial", Font.PLAIN, 14));
+        content_area.setFont(new Font("Noto Sans KR", Font.PLAIN, 14));
         content_area.setForeground(Color.decode("#262626"));
         content_area.setBackground(Color.WHITE);
         content_area.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
@@ -294,7 +294,7 @@ class MainTopPanel extends JPanel {
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")));
 
         JLabel topLabel = new JLabel("Hongstargram");
-        topLabel.setFont(new Font("Arial", Font.BOLD, 20));
+        topLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
         topLabel.setForeground(Color.decode("#262626"));
         topLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
 
@@ -461,7 +461,7 @@ class MainCenterPanel extends JPanel {
             emptyPanel.setPreferredSize(new Dimension(500, 600));
 
             JLabel emptyLabel = new JLabel("No Post... :(");
-            emptyLabel.setFont(new Font("Arial", Font.PLAIN, 20));
+            emptyLabel.setFont(new Font("Noto Sans KR", Font.PLAIN, 20));
             emptyLabel.setForeground(Color.decode("#8E8E8E"));
 
             emptyPanel.add(emptyLabel);
@@ -480,7 +480,7 @@ class FloatingActionButton extends JButton {
     public FloatingActionButton(String text) {
         super(text);
         setPreferredSize(new Dimension(60, 60));
-        setFont(new Font("Arial", Font.BOLD, 30));
+        setFont(new Font("Noto Sans KR", Font.BOLD, 30));
         setForeground(Color.WHITE);
         setBackground(Color.decode("#0095F6"));
         setBorderPainted(false);

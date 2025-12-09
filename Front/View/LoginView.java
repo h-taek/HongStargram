@@ -1,4 +1,4 @@
-package Front.View;
+﻿package Front.View;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -24,7 +24,7 @@ class PlaceholderTextField extends JTextField {
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(borderColor, 1),
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)));
-        setFont(new Font("Arial", Font.PLAIN, 14));
+        setFont(new Font("Noto Sans KR", Font.PLAIN, 14));
 
         addFocusListener(new FocusAdapter() {
             @Override
@@ -73,7 +73,7 @@ class PlaceholderPasswordField extends JPasswordField {
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createLineBorder(borderColor, 1),
                 BorderFactory.createEmptyBorder(8, 12, 8, 12)));
-        setFont(new Font("Arial", Font.PLAIN, 14));
+        setFont(new Font("Noto Sans KR", Font.PLAIN, 14));
 
         addFocusListener(new FocusAdapter() {
             @Override
@@ -153,14 +153,14 @@ class LoginFieldPanel extends JPanel {
         setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
         PlaceholderTextField id_field = new PlaceholderTextField("ID");
-        id_field.setFont(new Font("Arial", Font.PLAIN, 16));
+        id_field.setFont(new Font("Noto Sans KR", Font.PLAIN, 16));
         id_field.setPreferredSize(new Dimension(247, 55));
         id_field.setMaximumSize(new Dimension(247, 55));
         id_field.setMinimumSize(new Dimension(247, 55));
         id_field.setAlignmentX(Component.CENTER_ALIGNMENT);
 
         PlaceholderPasswordField pw_field = new PlaceholderPasswordField("PW");
-        pw_field.setFont(new Font("Arial", Font.PLAIN, 16));
+        pw_field.setFont(new Font("Noto Sans KR", Font.PLAIN, 16));
         pw_field.setPreferredSize(new Dimension(247, 55));
         pw_field.setMaximumSize(new Dimension(247, 55));
         pw_field.setMinimumSize(new Dimension(247, 55));
@@ -176,7 +176,7 @@ class LoginFieldPanel extends JPanel {
         final JButton loginBtn = new JButton("Log in");
         loginBtn.setBackground(Color.decode("#0095F6"));
         loginBtn.setForeground(Color.WHITE);
-        loginBtn.setFont(new Font("Arial", Font.BOLD, 14));
+        loginBtn.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
         loginBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         loginBtn.setBorder(new EmptyBorder(0, 0, 0, 0));
 

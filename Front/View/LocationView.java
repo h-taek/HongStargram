@@ -1,4 +1,4 @@
-package Front.View;
+﻿package Front.View;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -112,11 +112,11 @@ class MapPanel extends JPanel {
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
 
         JLabel titleLabel = new JLabel("📍 위치 정보");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        titleLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
         titleLabel.setForeground(Color.decode("#262626"));
 
         JLabel coordsLabel = new JLabel(String.format("위도: %.4f, 경도: %.4f", currentLat, currentLon));
-        coordsLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+        coordsLabel.setFont(new Font("Noto Sans KR", Font.PLAIN, 12));
         coordsLabel.setForeground(Color.decode("#8E8E8E"));
 
         JButton updateBtn = new RoundButton("위치 업데이트", 8);
@@ -144,7 +144,7 @@ class MapPanel extends JPanel {
         infoTextArea.setOpaque(false);
         infoTextArea.setLineWrap(true);
         infoTextArea.setWrapStyleWord(true);
-        infoTextArea.setFont(new Font("Arial", Font.PLAIN, 14));
+        infoTextArea.setFont(new Font("Noto Sans KR", Font.PLAIN, 14));
         infoTextArea.setForeground(Color.decode("#262626"));
         infoTextArea.setText(
             "🗺️ 네이버 지도 통합\n\n" +
@@ -226,7 +226,7 @@ class SimpleAlertListPanel extends JPanel {
         setBackground(Color.WHITE);
 
         JLabel titleLabel = new JLabel("  알람 목록");
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        titleLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 18));
         titleLabel.setForeground(Color.decode("#262626"));
         titleLabel.setBorder(BorderFactory.createEmptyBorder(15, 5, 10, 0));
         add(titleLabel, BorderLayout.NORTH);
@@ -257,7 +257,7 @@ class SimpleAlertListPanel extends JPanel {
             emptyPanel.setPreferredSize(new Dimension(500, 200));
 
             JLabel emptyLabel = new JLabel("설정된 알람이 없습니다");
-            emptyLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+            emptyLabel.setFont(new Font("Noto Sans KR", Font.PLAIN, 16));
             emptyLabel.setForeground(Color.decode("#8E8E8E"));
 
             emptyPanel.add(emptyLabel);
@@ -292,12 +292,12 @@ class SimpleAlertListPanel extends JPanel {
 
             JLabel nameLabel = new JLabel(targetName);
             nameLabel.setForeground(Color.decode("#262626"));
-            nameLabel.setFont(new Font("Arial", Font.BOLD, 14));
+            nameLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
 
             String distance = alert.get("alert_distance").toString();
             JLabel distLabel = new JLabel("알람 거리: " + distance + "m");
             distLabel.setForeground(Color.decode("#8E8E8E"));
-            distLabel.setFont(new Font("Arial", Font.PLAIN, 12));
+            distLabel.setFont(new Font("Noto Sans KR", Font.PLAIN, 12));
 
             infoPanel.add(nameLabel);
             infoPanel.add(Box.createVerticalStrut(3));
@@ -341,14 +341,14 @@ class SimpleAddAlertDialog extends JPanel implements ActionListener {
 
         JLabel userLabel = new JLabel("대상 친구 ID");
         userLabel.setForeground(Color.decode("#262626"));
-        userLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        userLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
 
         targetUserField = new JTextField();
         targetUserField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
 
         JLabel distLabel = new JLabel("알람 거리 (미터)");
         distLabel.setForeground(Color.decode("#262626"));
-        distLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        distLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
 
         distanceField = new JTextField("500");
         distanceField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));

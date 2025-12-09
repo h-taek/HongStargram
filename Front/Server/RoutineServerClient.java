@@ -31,7 +31,7 @@ public class RoutineServerClient {
                 os.write(jsonData.getBytes(StandardCharsets.UTF_8));
             }
 
-            if (conn.getResponseCode() == 1) {
+            if (conn.getResponseCode() == 200) {
                 try (BufferedReader br = new BufferedReader(
                         new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
                     return br.readLine();
@@ -55,7 +55,7 @@ public class RoutineServerClient {
                 os.write(userId.getBytes(StandardCharsets.UTF_8));
             }
 
-            if (conn.getResponseCode() == 1) {
+            if (conn.getResponseCode() == 200) {
                 try (BufferedReader br = new BufferedReader(
                         new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
                     String response = br.readLine();
@@ -81,7 +81,7 @@ public class RoutineServerClient {
                 os.write(routineId.getBytes(StandardCharsets.UTF_8));
             }
 
-            return conn.getResponseCode() == 1;
+            return conn.getResponseCode() == 200;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -107,7 +107,7 @@ public class RoutineServerClient {
                 os.write(jsonData.getBytes(StandardCharsets.UTF_8));
             }
 
-            if (conn.getResponseCode() == 1) {
+            if (conn.getResponseCode() == 200) {
                 try (BufferedReader br = new BufferedReader(
                         new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
                     return br.readLine();
@@ -138,7 +138,7 @@ public class RoutineServerClient {
                 os.write(jsonData.getBytes(StandardCharsets.UTF_8));
             }
 
-            if (conn.getResponseCode() == 1) {
+            if (conn.getResponseCode() == 200) {
                 try (BufferedReader br = new BufferedReader(
                         new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
                     String response = br.readLine();
@@ -164,7 +164,7 @@ public class RoutineServerClient {
                 os.write(eventId.getBytes(StandardCharsets.UTF_8));
             }
 
-            return conn.getResponseCode() == 1;
+            return conn.getResponseCode() == 200;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -183,7 +183,7 @@ public class RoutineServerClient {
                 os.write(eventId.getBytes(StandardCharsets.UTF_8));
             }
 
-            return conn.getResponseCode() == 1;
+            return conn.getResponseCode() == 200;
         } catch (Exception e) {
             e.printStackTrace();
         }

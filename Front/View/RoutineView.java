@@ -1,4 +1,4 @@
-package Front.View;
+﻿package Front.View;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -38,15 +38,15 @@ class CalendarGridPanel extends JPanel {
         headerPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
         JButton prevBtn = new JButton("<");
-        prevBtn.setFont(new Font("Arial", Font.BOLD, 16));
+        prevBtn.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
         prevBtn.addActionListener(e -> changeMonth(-1));
         
         JButton nextBtn = new JButton(">");
-        nextBtn.setFont(new Font("Arial", Font.BOLD, 16));
+        nextBtn.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
         nextBtn.addActionListener(e -> changeMonth(1));
 
         monthLabel = new JLabel();
-        monthLabel.setFont(new Font("Arial", Font.BOLD, 18));
+        monthLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 18));
         monthLabel.setForeground(Color.decode("#262626"));
         monthLabel.setHorizontalAlignment(SwingConstants.CENTER);
 
@@ -62,7 +62,7 @@ class CalendarGridPanel extends JPanel {
         String[] weekDays = {"일", "월", "화", "수", "목", "금", "토"};
         for (int i = 0; i < 7; i++) {
             JLabel dayLabel = new JLabel(weekDays[i], SwingConstants.CENTER);
-            dayLabel.setFont(new Font("Arial", Font.BOLD, 14));
+            dayLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
             dayLabel.setForeground(i == 0 ? Color.RED : (i == 6 ? Color.BLUE : Color.decode("#262626")));
             weekHeaderPanel.add(dayLabel);
         }
@@ -168,7 +168,7 @@ class CalendarGridPanel extends JPanel {
 
             // 날짜 라벨
             JLabel dayLabel = new JLabel(String.valueOf(day));
-            dayLabel.setFont(new Font("Arial", Font.BOLD, 12));
+            dayLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 12));
             dayLabel.setForeground(Color.decode("#262626"));
             dayLabel.setBorder(BorderFactory.createEmptyBorder(3, 3, 0, 0));
 
@@ -204,7 +204,7 @@ class CalendarGridPanel extends JPanel {
                     eventBar.setMaximumSize(new Dimension(Integer.MAX_VALUE, 15));
 
                     JLabel eventLabel = new JLabel(title.length() > 6 ? title.substring(0, 6) + "..." : title);
-                    eventLabel.setFont(new Font("Arial", Font.PLAIN, 9));
+                    eventLabel.setFont(new Font("Noto Sans KR", Font.PLAIN, 9));
                     eventLabel.setForeground(Color.WHITE);
                     eventBar.add(eventLabel);
 
@@ -213,7 +213,7 @@ class CalendarGridPanel extends JPanel {
 
                 if (events.size() > 3) {
                     JLabel moreLabel = new JLabel("+" + (events.size() - 3));
-                    moreLabel.setFont(new Font("Arial", Font.PLAIN, 8));
+                    moreLabel.setFont(new Font("Noto Sans KR", Font.PLAIN, 8));
                     moreLabel.setForeground(Color.decode("#8E8E8E"));
                     eventsPanel.add(moreLabel);
                 }
@@ -338,7 +338,7 @@ class SimpleRoutineListPanel extends JPanel {
             emptyPanel.setPreferredSize(new Dimension(500, 200));
 
             JLabel emptyLabel = new JLabel("루틴을 추가하세요");
-            emptyLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+            emptyLabel.setFont(new Font("Noto Sans KR", Font.PLAIN, 16));
             emptyLabel.setForeground(Color.decode("#8E8E8E"));
 
             emptyPanel.add(emptyLabel);
@@ -365,7 +365,7 @@ class SimpleRoutineListPanel extends JPanel {
 
             JLabel titleLabel = new JLabel(routine.get("title").toString());
             titleLabel.setForeground(Color.decode("#262626"));
-            titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+            titleLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
             titleLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
             add(titleLabel, BorderLayout.CENTER);
 
@@ -419,7 +419,7 @@ class SimpleAddRoutineDialog extends JPanel implements ActionListener {
 
         JLabel titleLabel = new JLabel("루틴 제목");
         titleLabel.setForeground(Color.decode("#262626"));
-        titleLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        titleLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
         
         titleField = new JTextField();
         titleField.setMaximumSize(new Dimension(Integer.MAX_VALUE, 35));
@@ -432,7 +432,7 @@ class SimpleAddRoutineDialog extends JPanel implements ActionListener {
 
         JLabel descLabel = new JLabel("설명");
         descLabel.setForeground(Color.decode("#262626"));
-        descLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        descLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
 
         descField = new JTextArea(3, 20);
         descField.setLineWrap(true);
@@ -447,7 +447,7 @@ class SimpleAddRoutineDialog extends JPanel implements ActionListener {
 
         JLabel colorLabel = new JLabel("색상");
         colorLabel.setForeground(Color.decode("#262626"));
-        colorLabel.setFont(new Font("Arial", Font.BOLD, 14));
+        colorLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
 
         String[] colors = {"Blue", "Green", "Red", "Purple", "Orange", "Pink"};
         colorComboBox = new JComboBox<>(colors);
@@ -499,7 +499,7 @@ class RoutineTopPanel extends JPanel {
         add(backBtn);
         add(Box.createHorizontalGlue());
 
-        ImageIcon addIcon = new ImageIcon(Resize.resizeImage("Front/.src/add_friend_icon.png", 30, 30, 1));
+        ImageIcon addIcon = new ImageIcon(Resize.resizeImage("Front/.src/add_routine.png", 30, 30, 1));
         JButton addRoutineBtn = new JButton(addIcon);
         addRoutineBtn.setOpaque(false);
         addRoutineBtn.setBorderPainted(false);

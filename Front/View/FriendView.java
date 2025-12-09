@@ -1,4 +1,4 @@
-package Front.View;
+﻿package Front.View;
 
 import java.util.*;
 import javax.swing.*;
@@ -27,7 +27,7 @@ class FreindTopPanel extends JPanel {
         setBackground(Color.decode("#FAFAFA"));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")));
 
-        Icon icon = new ImageIcon("Front/.src/left-arrow_line.png");
+        Icon icon = new ImageIcon(Resize.resizeImage("Front/.src/left-arrow_line.png", 30, 30, 1));
         JButton back_btn = new JButton(icon);
         back_btn.setBackground(Color.decode("#FAFAFA"));
         back_btn.setBorderPainted(false); // 테두리(border) 없애기
@@ -38,7 +38,7 @@ class FreindTopPanel extends JPanel {
         add(back_btn);
         add(Box.createHorizontalGlue());
 
-        icon = new ImageIcon("Front/.src/add_line.png");
+        icon = new ImageIcon(Resize.resizeImage("Front/.src/add_line.png", 30, 30, 1));
         JButton add_friend_btn = new JButton(icon);
         add_friend_btn.setBackground(Color.decode("#FAFAFA"));
         add_friend_btn.setBorderPainted(false); // 테두리(border) 없애기
@@ -110,7 +110,7 @@ class FriendPanel extends JPanel {
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")));
 
-        ImageIcon icon = new ImageIcon("Front/.src/friends_line.png");
+        ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/friends_line.png", 40, 40, 1));
         JLabel imgLabel = new JLabel(icon);
         imgLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
         imgLabel.setOpaque(false);
@@ -119,11 +119,11 @@ class FriendPanel extends JPanel {
         JLabel nameLabel = new JLabel(name);
         nameLabel.setForeground(Color.decode("#262626"));
         nameLabel.setOpaque(false);
-        nameLabel.setFont(new Font("Arial", Font.BOLD, 16));
+        nameLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
 
         JLabel idLabel = new JLabel("@ " + id);
         idLabel.setForeground(Color.decode("#8E8E8E"));
-        idLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        idLabel.setFont(new Font("Noto Sans KR", Font.PLAIN, 13));
         idLabel.setOpaque(false);
 
         JPanel textPanel = new JPanel();
@@ -165,7 +165,7 @@ class FriendRequestPanel extends FriendPanel {
         this.server = totFreindPanel.server;
 
         RoundButton acceptBtn = new RoundButton("수락", 15);
-        acceptBtn.setFont(new Font("Arial", Font.PLAIN, 12));
+        acceptBtn.setFont(new Font("Noto Sans KR", Font.PLAIN, 12));
         acceptBtn.setMargin(new Insets(0, 0, 0, 0));
         acceptBtn.setBackground(Color.decode("#0095F6"));
         acceptBtn.setForeground(Color.white);
@@ -177,7 +177,7 @@ class FriendRequestPanel extends FriendPanel {
         });
 
         RoundButton refuseBtn = new RoundButton("거절", 15);
-        refuseBtn.setFont(new Font("Arial", Font.PLAIN, 12));
+        refuseBtn.setFont(new Font("Noto Sans KR", Font.PLAIN, 12));
         refuseBtn.setMargin(new Insets(0, 0, 0, 0));
         refuseBtn.setBackground(Color.GRAY);
         refuseBtn.setForeground(Color.white);
@@ -214,7 +214,7 @@ class FriendAddPanel extends FriendPanel {
         this.server = totFreindPanel.server;
 
         RoundButton addBtn = new RoundButton("취소", 15);
-        addBtn.setFont(new Font("Arial", Font.PLAIN, 12));
+        addBtn.setFont(new Font("Noto Sans KR", Font.PLAIN, 12));
         addBtn.setMargin(new Insets(0, 0, 0, 0));
         addBtn.setBackground(Color.GRAY);
         addBtn.setForeground(Color.white);
@@ -267,7 +267,7 @@ class TotFreindPanel extends JPanel {
 
             JLabel label = new JLabel(text);
             label.setForeground(Color.decode("#262626"));
-            label.setFont(new Font("Arial", Font.BOLD, 20));
+            label.setFont(new Font("Noto Sans KR", Font.BOLD, 20));
             label.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
             label.setAlignmentX(Component.LEFT_ALIGNMENT);
             label.setHorizontalAlignment(SwingConstants.LEFT);

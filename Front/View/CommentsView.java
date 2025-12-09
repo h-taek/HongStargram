@@ -1,4 +1,4 @@
-package Front.View;
+﻿package Front.View;
 
 import javax.swing.*;
 import java.awt.*;
@@ -89,7 +89,7 @@ class Comment extends JPanel {
 
         Label id_label = new Label("@ " + user_id);
         id_label.setForeground(Color.decode("#262626"));
-        id_label.setFont(new Font("Arial", Font.BOLD, 14));
+        id_label.setFont(new Font("Noto Sans KR", Font.BOLD, 14));
         id_label.setBorder(BorderFactory.createEmptyBorder(0, 10, 5, 0));
 
         top_panel.add(id_label);
@@ -120,7 +120,7 @@ class Comment extends JPanel {
         TextArea msg_area = new TextArea(msg);
         msg_area.setForeground(Color.decode("#262626"));
         msg_area.setBackground(Color.WHITE);
-        msg_area.setFont(new Font("Arial", Font.PLAIN, 14));
+        msg_area.setFont(new Font("Noto Sans KR", Font.PLAIN, 14));
 
         msg_area.setLineWrap(true);
         msg_area.setWrapStyleWord(true);
@@ -189,7 +189,7 @@ class CommentTopPanel extends JPanel {
         panel.setOpaque(false);
 
         JLabel label = new JLabel("Comments");
-        label.setFont(new Font("Arial", Font.BOLD, 18));
+        label.setFont(new Font("Noto Sans KR", Font.BOLD, 18));
         label.setForeground(Color.decode("#262626"));
 
         panel.add(label);

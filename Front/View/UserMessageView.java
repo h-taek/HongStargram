@@ -1,9 +1,10 @@
-package Front.View;
+﻿package Front.View;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import Front.App.Navigator;
+import Front.Resize.Resize;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -151,7 +152,7 @@ class MessageCellRenderer extends JPanel implements ListCellRenderer<Message> {
         setOpaque(false);
         setBorder(BorderFactory.createEmptyBorder(5, 5, 0, 5));
 
-        senderLabel.setFont(new Font("Arial", Font.PLAIN, 13));
+        senderLabel.setFont(new Font("Noto Sans KR", Font.PLAIN, 13));
         senderLabel.setForeground(Color.decode("#8E8E8E"));
         senderLabel.setBorder(new EmptyBorder(0, 5, 0, 0));
 
@@ -193,7 +194,7 @@ class UserMessegeTopPanel extends JPanel {
         setBackground(Color.decode("#FAFAFA"));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")));
 
-        Icon icon = new ImageIcon("Front/.src/left-arrow_line.png");
+        Icon icon = new ImageIcon(Resize.resizeImage("Front/.src/left-arrow_line.png", 30, 30, 1));
         JButton btn = new JButton(icon);
         btn.addActionListener(new ActionListener() {
             @Override
@@ -211,7 +212,7 @@ class UserMessegeTopPanel extends JPanel {
         String re_nName_str = String.join(", ", re_nName);
         JLabel label = new JLabel(re_nName_str);
         label.setForeground(Color.decode("#262626"));
-        label.setFont(new Font("Arial", Font.PLAIN, 18));
+        label.setFont(new Font("Noto Sans KR", Font.PLAIN, 18));
 
         add(label, BorderLayout.CENTER);
     }
