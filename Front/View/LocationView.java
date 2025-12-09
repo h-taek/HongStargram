@@ -88,14 +88,17 @@ class NaverMapHelper {
     }
 }
 
-// 지도 패널 (JEditorPane 사용)
+// 지도 패널 (JavaFX WebView 사용)
 class MapPanel extends JPanel {
-    private JEditorPane editorPane;
     private String userId;
     private LocationServerClient server;
     private InfoServerClient infoServer;
     private double currentLat = 37.5665;
     private double currentLon = 126.9780;
+    private javafx.embed.swing.JFXPanel jfxPanel;
+    private javafx.scene.web.WebView webView;
+    private javafx.scene.web.WebEngine webEngine;
+    private JLabel coordsLabel;
 
     public MapPanel(String userId, LocationServerClient server, InfoServerClient infoServer) {
         this.userId = userId;
@@ -111,11 +114,11 @@ class MapPanel extends JPanel {
         infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         infoPanel.setLayout(new BoxLayout(infoPanel, BoxLayout.Y_AXIS));
 
-        JLabel titleLabel = new JLabel("📍 위치 정보");
+        JLabel titleLabel = new JLabel("📍 네이버 지도");
         titleLabel.setFont(new Font("Noto Sans KR", Font.BOLD, 16));
         titleLabel.setForeground(Color.decode("#262626"));
 
-        JLabel coordsLabel = new JLabel(String.format("위도: %.4f, 경도: %.4f", currentLat, currentLon));
+        coordsLabel = new JLabel(String.format("위도: %.4f, 경도: %.4f", currentLat, currentLon));
         coordsLabel.setFont(new Font("Noto Sans KR", Font.PLAIN, 12));
         coordsLabel.setForeground(Color.decode("#8E8E8E"));
 
@@ -123,7 +126,7 @@ class MapPanel extends JPanel {
         updateBtn.setBackground(Color.decode("#0095F6"));
         updateBtn.setForeground(Color.WHITE);
         updateBtn.setMaximumSize(new Dimension(150, 35));
-        updateBtn.addActionListener(e -> showUpdateDialog(coordsLabel));
+        updateBtn.addActionListener(e -> showUpdateDialog());
 
         infoPanel.add(titleLabel);
         infoPanel.add(Box.createVerticalStrut(5));
@@ -133,34 +136,28 @@ class MapPanel extends JPanel {
 
         add(infoPanel, BorderLayout.NORTH);
 
-        // 지도 설명 패널 (JEditorPane 대신 간단한 패널로 대체)
-        JPanel mapInfoPanel = new JPanel();
-        mapInfoPanel.setLayout(new GridBagLayout());
-        mapInfoPanel.setBackground(Color.WHITE);
-        mapInfoPanel.setBorder(BorderFactory.createLineBorder(Color.decode("#DBDBDB"), 1));
+        // JavaFX WebView 초기화
+        jfxPanel = new javafx.embed.swing.JFXPanel();
+        add(jfxPanel, BorderLayout.CENTER);
 
-        JTextArea infoTextArea = new JTextArea();
-        infoTextArea.setEditable(false);
-        infoTextArea.setOpaque(false);
-        infoTextArea.setLineWrap(true);
-        infoTextArea.setWrapStyleWord(true);
-        infoTextArea.setFont(new Font("Noto Sans KR", Font.PLAIN, 14));
-        infoTextArea.setForeground(Color.decode("#262626"));
-        infoTextArea.setText(
-            "🗺️ 네이버 지도 통합\n\n" +
-            "현재 위치: 서울\n" +
-            "위도/경도를 업데이트하면\n" +
-            "지도상의 위치가 변경됩니다.\n\n" +
-            "실제 지도 표시를 위해서는\n" +
-            "웹 브라우저가 필요합니다.\n\n" +
-            "Java Swing의 제한으로\n" +
-            "간소화된 버전을 표시합니다."
-        );
+        // JavaFX 스레드에서 WebView 생성
+        javafx.application.Platform.runLater(() -> {
+            webView = new javafx.scene.web.WebView();
+            webEngine = webView.getEngine();
+            
+            // JavaScript 경고 핸들러
+            webEngine.setOnAlert(event -> {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(null, event.getData());
+                });
+            });
 
-        mapInfoPanel.add(infoTextArea);
-        add(mapInfoPanel, BorderLayout.CENTER);
-
-        loadUserLocation();
+            javafx.scene.Scene scene = new javafx.scene.Scene(webView);
+            jfxPanel.setScene(scene);
+            
+            loadUserLocation();
+            updateMap();
+        });
     }
 
     private void loadUserLocation() {
@@ -168,10 +165,50 @@ class MapPanel extends JPanel {
         if (location != null && location.containsKey("latitude")) {
             currentLat = Double.parseDouble(location.get("latitude").toString());
             currentLon = Double.parseDouble(location.get("longitude").toString());
+            SwingUtilities.invokeLater(() -> {
+                coordsLabel.setText(String.format("위도: %.4f, 경도: %.4f", currentLat, currentLon));
+            });
         }
     }
 
-    private void showUpdateDialog(JLabel coordsLabel) {
+    private void updateMap() {
+        // 사용자 위치 마커 생성
+        List<Map<String, Object>> markers = new ArrayList<>();
+        Map<String, Object> userMarker = new HashMap<>();
+        userMarker.put("latitude", currentLat);
+        userMarker.put("longitude", currentLon);
+        userMarker.put("label", "내 위치");
+        userMarker.put("color", "#0095F6");
+        markers.add(userMarker);
+
+        // 주변 친구 위치 추가 (옵션)
+        List<Map<String, Object>> nearbyUsers = server.CheckNearbyUsersRequest(userId, 5000.0);
+        if (nearbyUsers != null) {
+            for (Map<String, Object> user : nearbyUsers) {
+                if (user.containsKey("latitude") && user.containsKey("longitude")) {
+                    Map<String, Object> marker = new HashMap<>();
+                    marker.put("latitude", Double.parseDouble(user.get("latitude").toString()));
+                    marker.put("longitude", Double.parseDouble(user.get("longitude").toString()));
+                    marker.put("label", user.getOrDefault("nick_name", "친구").toString());
+                    marker.put("color", "#00C853");
+                    markers.add(marker);
+                }
+            }
+        }
+
+        String mapHTML = NaverMapHelper.createMapHTML(currentLat, currentLon, markers);
+        
+        javafx.application.Platform.runLater(() -> {
+            webEngine.loadContent(mapHTML);
+        });
+    }
+
+    public void refresh() {
+        loadUserLocation();
+        updateMap();
+    }
+
+    private void showUpdateDialog() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
@@ -201,6 +238,7 @@ class MapPanel extends JPanel {
                     currentLat = lat;
                     currentLon = lon;
                     coordsLabel.setText(String.format("위도: %.4f, 경도: %.4f", lat, lon));
+                    updateMap();
                     JOptionPane.showMessageDialog(null, "위치가 업데이트되었습니다!");
                 }
             } catch (NumberFormatException ex) {
