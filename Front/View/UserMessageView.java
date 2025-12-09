@@ -193,7 +193,7 @@ class UserMessegeTopPanel extends JPanel {
         setBackground(Color.decode("#FAFAFA"));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")));
 
-        Icon icon = new ImageIcon("Front/.src/back_arrow_icon_black.png");
+        Icon icon = new ImageIcon("Front/.src/left-arrow_line.png");
         JButton btn = new JButton(icon);
         btn.addActionListener(new ActionListener() {
             @Override

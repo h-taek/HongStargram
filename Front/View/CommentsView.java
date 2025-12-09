@@ -174,7 +174,7 @@ class CommentTopPanel extends JPanel {
         setBackground(Color.decode("#FAFAFA"));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")));
 
-        ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/back_arrow_icon_black.png", 35, 35, 1));
+        ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/left-arrow_line.png", 35, 35, 1));
         JButton btn = new JButton(icon);
         btn.setOpaque(false);
         btn.setContentAreaFilled(false);

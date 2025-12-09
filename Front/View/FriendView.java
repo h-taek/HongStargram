@@ -27,7 +27,7 @@ class FreindTopPanel extends JPanel {
         setBackground(Color.decode("#FAFAFA"));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")));
 
-        Icon icon = new ImageIcon("Front/.src/back_arrow_icon_black.png");
+        Icon icon = new ImageIcon("Front/.src/left-arrow_line.png");
         JButton back_btn = new JButton(icon);
         back_btn.setBackground(Color.decode("#FAFAFA"));
         back_btn.setBorderPainted(false); // 테두리(border) 없애기
@@ -38,7 +38,7 @@ class FreindTopPanel extends JPanel {
         add(back_btn);
         add(Box.createHorizontalGlue());
 
-        icon = new ImageIcon("Front/.src/add_friend_icon.png");
+        icon = new ImageIcon("Front/.src/add_line.png");
         JButton add_friend_btn = new JButton(icon);
         add_friend_btn.setBackground(Color.decode("#FAFAFA"));
         add_friend_btn.setBorderPainted(false); // 테두리(border) 없애기
@@ -110,7 +110,7 @@ class FriendPanel extends JPanel {
         setBackground(Color.WHITE);
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")));
 
-        ImageIcon icon = new ImageIcon("Front/.src/person_icon_black.png");
+        ImageIcon icon = new ImageIcon("Front/.src/friends_line.png");
         JLabel imgLabel = new JLabel(icon);
         imgLabel.setBorder(BorderFactory.createEmptyBorder(0, 10, 0, 0));
         imgLabel.setOpaque(false);

@@ -242,7 +242,7 @@ class TotMessegeBtnPanel extends JPanel {
         setBackground(Color.decode("#FAFAFA"));
         setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode("#DBDBDB")));
 
-        Icon back_icon = new ImageIcon(Resize.resizeImage("Front/.src/back_arrow_icon_black.png", 30, 30, 1));
+        Icon back_icon = new ImageIcon(Resize.resizeImage("Front/.src/left-arrow_line.png", 30, 30, 1));
         JButton back_btn = new JButton(back_icon);
         back_btn.setOpaque(false);
         back_btn.setContentAreaFilled(false);

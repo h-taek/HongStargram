@@ -209,7 +209,7 @@ class Post extends JPanel {
         if (likes.contains(id)) {
             like_icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_icon.png", 25, 25, 1));
         } else {
-            like_icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_line_icon.png", 25, 25, 1));
+            like_icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_line.png", 25, 25, 1));
         }
 
         JButton like_btn = new JButton(like_icon);
@@ -224,7 +224,7 @@ class Post extends JPanel {
         like_btn.addActionListener(e -> {
             if (likes.contains(id)) {
                 likes.remove(id);
-                ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_line_icon.png", 25, 25, 1));
+                ImageIcon icon = new ImageIcon(Resize.resizeImage("Front/.src/heart_line.png", 25, 25, 1));
                 like_btn.setIcon(icon);
 
                 like_count_label.setText((likes.size()) + "   ");
@@ -242,7 +242,7 @@ class Post extends JPanel {
         bottom_btn_panel.add(like_btn);
         bottom_btn_panel.add(like_count_label);
 
-        JButton comment_btn = new JButton(new ImageIcon(Resize.resizeImage("Front/.src/comment_icon.png", 25, 25, 1)));
+        JButton comment_btn = new JButton(new ImageIcon(Resize.resizeImage("Front/.src/communication_line.png", 25, 25, 1)));
         comment_btn.setOpaque(false);
         comment_btn.setBorderPainted(false);
         comment_btn.setFocusPainted(false);
@@ -318,7 +318,7 @@ class MainTopPanel extends JPanel {
             nav.openTotMessage(id, nName);
         });
 
-        icon = new ImageIcon(Resize.resizeImage("Front/.src/group_icon_black.png", s, s, 1));
+        icon = new ImageIcon(Resize.resizeImage("Front/.src/network_line.png", s, s, 1));
         JButton friendBtn = new JButton(icon);
         friendBtn.setBackground(Color.decode("#FAFAFA"));
         friendBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -346,7 +346,7 @@ class MainTopPanel extends JPanel {
             center.refresh();
         });
 
-        icon = new ImageIcon(Resize.resizeImage("Front/.src/new_post_icon_black.png", s, s, 1));
+        icon = new ImageIcon(Resize.resizeImage("Front/.src/post_line.png", s, s, 1));
         JButton postBtn = new JButton(icon);
         postBtn.setBackground(Color.decode("#FAFAFA"));
         postBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
@@ -375,40 +375,8 @@ class MainTopPanel extends JPanel {
 
         postBtn.addActionListener(dialog);
 
-        // 루틴 관리 버튼 추가
-        icon = new ImageIcon(Resize.resizeImage("Front/.src/chat_icon_black.png", s, s, 1));
-        JButton routineBtn = new JButton(icon);
-        routineBtn.setBackground(Color.decode("#FAFAFA"));
-        routineBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        routineBtn.setOpaque(true);
-        routineBtn.setContentAreaFilled(true);
-        routineBtn.setBorderPainted(false);
-        routineBtn.setFocusPainted(false);
-
-        routineBtn.addActionListener(e -> {
-            nav.openRoutine(id, nName);
-        });
-
-        // 위치 알람 버튼 추가
-        icon = new ImageIcon(Resize.resizeImage("Front/.src/person_icon_black.png", s, s, 1));
-        JButton locationBtn = new JButton(icon);
-        locationBtn.setBackground(Color.decode("#FAFAFA"));
-        locationBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
-
-        locationBtn.setOpaque(true);
-        locationBtn.setContentAreaFilled(true);
-        locationBtn.setBorderPainted(false);
-        locationBtn.setFocusPainted(false);
-
-        locationBtn.addActionListener(e -> {
-            nav.openLocation(id, nName);
-        });
-
         btnPanel.add(postBtn);
         btnPanel.add(refreshBtn);
-        btnPanel.add(routineBtn);
-        btnPanel.add(locationBtn);
         btnPanel.add(friendBtn);
         btnPanel.add(messegeBtn);
 
@@ -504,6 +472,51 @@ class MainCenterPanel extends JPanel {
     }
 }
 
+// FAB (Floating Action Button) 클래스
+class FloatingActionButton extends JButton {
+    private boolean menuVisible = false;
+    private JPanel menuPanel;
+
+    public FloatingActionButton(String text) {
+        super(text);
+        setPreferredSize(new Dimension(60, 60));
+        setFont(new Font("Arial", Font.BOLD, 30));
+        setForeground(Color.WHITE);
+        setBackground(Color.decode("#0095F6"));
+        setBorderPainted(false);
+        setFocusPainted(false);
+        setCursor(new Cursor(Cursor.HAND_CURSOR));
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+        Graphics2D g2 = (Graphics2D) g.create();
+        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+        
+        // 그림자 효과
+        g2.setColor(new Color(0, 0, 0, 50));
+        g2.fillOval(3, 3, getWidth() - 6, getHeight() - 6);
+        
+        // 버튼 배경
+        g2.setColor(getBackground());
+        g2.fillOval(0, 0, getWidth() - 6, getHeight() - 6);
+        
+        g2.dispose();
+        super.paintComponent(g);
+    }
+
+    public void setMenuPanel(JPanel panel) {
+        this.menuPanel = panel;
+    }
+
+    public void toggleMenu() {
+        if (menuPanel != null) {
+            menuVisible = !menuVisible;
+            menuPanel.setVisible(menuVisible);
+        }
+    }
+}
+
 public class MainView extends JFrame {
     PostServerClient server = new PostServerClient();
 
@@ -519,6 +532,66 @@ public class MainView extends JFrame {
 
         add(mainTopPanel, BorderLayout.NORTH);
         add(mainCenterPanel, BorderLayout.CENTER);
+
+        // FAB와 메뉴를 담을 레이어 패널 생성
+        JLayeredPane layeredPane = new JLayeredPane();
+        layeredPane.setPreferredSize(new Dimension(500, 800));
+
+        // 메인 컨텐츠를 레이어에 추가
+        JPanel contentPanel = new JPanel(new BorderLayout());
+        contentPanel.setBounds(0, 0, 500, 800);
+        contentPanel.add(mainTopPanel, BorderLayout.NORTH);
+        contentPanel.add(mainCenterPanel, BorderLayout.CENTER);
+        layeredPane.add(contentPanel, JLayeredPane.DEFAULT_LAYER);
+
+        // FAB 메뉴 패널 생성
+        JPanel fabMenuPanel = new JPanel();
+        fabMenuPanel.setLayout(new BoxLayout(fabMenuPanel, BoxLayout.Y_AXIS));
+        fabMenuPanel.setBackground(new Color(255, 255, 255, 240));
+        fabMenuPanel.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(Color.decode("#DBDBDB"), 1),
+                BorderFactory.createEmptyBorder(10, 10, 10, 10)));
+        fabMenuPanel.setVisible(false);
+
+        // 루틴 달력 버튼
+        RoundButton routineButton = new RoundButton("📅 루틴 달력", 10);
+        routineButton.setPreferredSize(new Dimension(150, 45));
+        routineButton.setMaximumSize(new Dimension(150, 45));
+        routineButton.setBackground(Color.decode("#0095F6"));
+        routineButton.setForeground(Color.WHITE);
+        routineButton.addActionListener(e -> {
+            nav.openRoutine(id, nName);
+            fabMenuPanel.setVisible(false);
+        });
+
+        // 위치 지도 버튼
+        RoundButton locationButton = new RoundButton("🗺️ 위치 지도", 10);
+        locationButton.setPreferredSize(new Dimension(150, 45));
+        locationButton.setMaximumSize(new Dimension(150, 45));
+        locationButton.setBackground(Color.decode("#00C853"));
+        locationButton.setForeground(Color.WHITE);
+        locationButton.addActionListener(e -> {
+            nav.openLocation(id, nName);
+            fabMenuPanel.setVisible(false);
+        });
+
+        fabMenuPanel.add(routineButton);
+        fabMenuPanel.add(Box.createVerticalStrut(10));
+        fabMenuPanel.add(locationButton);
+
+        // 메뉴 위치: 오른쪽 하단, 화면 안쪽 여유 확보
+        fabMenuPanel.setBounds(300, 620, 170, 120);
+        layeredPane.add(fabMenuPanel, JLayeredPane.POPUP_LAYER);
+
+        // FAB 버튼 생성 - 오른쪽 하단, 화면 안쪽 여유 확보
+        FloatingActionButton fab = new FloatingActionButton("+");
+        fab.setBounds(410, 700, 60, 60);
+        fab.setMenuPanel(fabMenuPanel);
+        fab.addActionListener(e -> fab.toggleMenu());
+        layeredPane.add(fab, JLayeredPane.PALETTE_LAYER);
+
+        // 레이어 패널을 프레임에 추가
+        setContentPane(layeredPane);
 
         setLocationRelativeTo(null);
         setVisible(true);
